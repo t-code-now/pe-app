@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תוכנית עבודה שנתית - חינוך גופני</title>
+  <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --text-color: #1c1e21;
+      --border-color: #e4e6eb;
+      --primary-color: #1877f2;
+      --status-red-bg: #ffebe9;
+      --status-red-border: #ff4d4f;
+      --status-yellow-bg: #fffbe6;
+      --status-yellow-border: #faad14;
+      --status-green-bg: #f6ffed;
+      --status-green-border: #52c41a;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; direction: rtl; }
+    .container { max-width: 1150px; margin: 0 auto; }
+
+    header {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    h1 { margin: 0 0 8px 0; color: #1a237e; font-size: 1.8rem; }
+    p.subtitle { margin: 0; color: #65676b; font-size: 0.95rem; }
+
+    .top-bar {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 10px 18px;
+      background: #e4e6eb;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #4b4f56;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { background: var(--primary-color); color: white; }
+
+    .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      padding: 9px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.85rem;
+      transition: opacity 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: center;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-manage { background-color: #6c757d; color: white; }
+    .btn-lesson-manage { background-color: #007bff; color: white; }
+    .btn-reset { background-color: #ff4d4f; color: white; }
+    .btn-print { background-color: var(--primary-color); color: white; }
+    .btn-export { background-color: #28a745; color: white; }
+    .btn-import { background-color: #17a2b8; color: white; }
+    .btn-move { background-color: #f39c12; color: white; }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: var(--card-bg);
+    }
+    .filter-bar input { flex: 1; min-width: 200px; }
+
+    .month-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .month-header {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #1a237e;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .lesson-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-right: 6px solid var(--status-red-border);
+      background-color: var(--status-red-bg);
+      transition: all 0.25s ease;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .lesson-item.yellow {
+      background-color: var(--status-yellow-bg);
+      border-right-color: var(--status-yellow-border);
+    }
+    .lesson-item.green {
+      background-color: var(--status-green-bg);
+      border-right-color: var(--status-green-border);
+    }
+
+    .lesson-content { flex: 1; min-width: 260px; }
+    .lesson-text { font-size: 0.95rem; font-weight: 600; }
+    .assessment-criteria {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: #2c3e50;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 6px 10px;
+      border-radius: 6px;
+      border-right: 4px solid #17a2b8;
+      display: inline-block;
+    }
+
+    .checkboxes { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+      background: rgba(255,255,255,0.8);
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    .checkbox-label input { cursor: pointer; width: 17px; height: 17px; }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      width: 92%;
+      max-width: 600px;
+      direction: rtl;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-header { font-size: 1.2rem; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem;
+    }
+    .class-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .class-row { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; }
+    .btn-delete { background: #ff4d4f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+
+    /* סטטוס ענן */
+    .cloud-status {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: var(--card-bg);
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        z-index: 100;
+        opacity: 0.9;
+    }
+    .cloud-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #ccc;
+    }
+    .cloud-indicator.online { background-color: var(--status-green-border); }
+    .cloud-indicator.syncing { background-color: var(--status-yellow-border); }
+    .cloud-indicator.error { background-color: var(--status-red-border); }
+
+    #cloudUnconnectedView, #cloudConnectedView { display: flex; flex-direction: column; gap: 15px; }
+    .sync-code-display { background: #f0f2f5; border: 2px dashed var(--primary-color); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 1.5rem; font-weight: bold; color: var(--primary-color); cursor: pointer; letter-spacing: 3px; text-align: center; transition: background 0.2s; }
+    .sync-code-display:hover { background: #e4e6eb; }
+
+    @media print {
+      .top-bar, .filter-bar, .action-btns, .cloud-status { display: none !important; }
+      .grade-section { display: block !important; page-break-after: always; }
+      body { background: white; padding: 0; }
+      .month-card { box-shadow: none; border: 1px solid #ddd; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>תוכנית עבודה שנתית אינטראקטיבית - חינוך גופני</h1>
+      <p class="subtitle">מעקב ביצוע חודשי לפי כיתות (תשפ"ז)</p>
+    </header>
+
+    <div class="top-bar">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="window.switchGrade('a_b')">שכבות א'-ב'</button>
+        <button class="tab-btn" onclick="window.switchGrade('g')">שכבה ג'</button>
+        <button class="tab-btn" onclick="window.switchGrade('d')">שכבה ד'</button>
+        <button class="tab-btn" onclick="window.switchGrade('h')">שכבה ה'</button>
+        <button class="tab-btn" onclick="window.switchGrade('v')">שכבה ו'</button>
+      </div>
+
+      <div class="action-btns">
+        <button class="btn btn-lesson-manage" onclick="window.openLessonManagerModal()">📝 ניהול שיעורים</button>
+        <button class="btn btn-manage" onclick="window.openClassModal()">✏️ ניהול כיתות</button>
+        <button class="btn btn-export" onclick="window.exportData()">📥 ייצוא נתונים</button>
+        <button class="btn btn-import" onclick="document.getElementById('importFile').click()">📤 טעינת נתונים</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="window.importData(event)">
+        <button class="btn btn-print" onclick="window.print()">🖨️ הדפסה</button>
+        <button class="btn btn-reset" onclick="window.resetAll()">🔄 איפוס</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="🔍 חפש נושא, מיומנות, מחוון הערכה או מס' שיעור..." oninput="window.filterLessons()">
+      <select id="statusFilter" onchange="window.filterLessons()">
+        <option value="all">כל הסטטוסים</option>
+        <option value="red">טרם בוצע (אדום)</option>
+        <option value="yellow">בוצע חלקית (צהוב)</option>
+        <option value="green">הושלם (ירוק)</option>
+      </select>
+    </div>
+
+    <div id="grade-a_b" class="grade-section"></div>
+    <div id="grade-g" class="grade-section"></div>
+    <div id="grade-d" class="grade-section"></div>
+    <div id="grade-h" class="grade-section"></div>
+    <div id="grade-v" class="grade-section"></div>
+  </div>
+
+  <div class="cloud-status" onclick="window.openCloudModal()" style="cursor: pointer;" title="לחץ להגדרות סנכרון בענן">
+      <div id="cloudIndicator" class="cloud-indicator"></div>
+      <span id="cloudText">מתחבר לענן...</span>
+  </div>
+
+  <!-- Modal ניהול כיתות -->
+  <div class="modal" id="classModal">
+    <div class="modal-content">
+      <div class="modal-header">ניהול כיתות בשכבה הפעילה</div>
+      <div class="class-list" id="modalClassList"></div>
+      <div class="form-group" style="display: flex; gap: 8px;">
+        <input type="text" id="newClassInput" placeholder="שם כיתה חדשה (לדוגמה: ג'4)">
+        <button class="btn btn-print" onclick="window.addClass()">הוסף</button>
+      </div>
+      <br>
+      <button class="btn btn-manage" style="width: 100%;" onclick="window.closeClassModal()">סגור</button>
+    </div>
+  </div>
+
+  <!-- Modal ניהול שיעורים -->
+  <div class="modal" id="lessonManagerModal">
+    <div class="modal-content">
+      <div class="modal-header">ניהול שיעורים ומחוונים</div>
+      
+      <div class="form-group">
+        <label>חודש:</label>
+        <select id="mgrMonthSelect" onchange="window.onMgrMonthChange()"></select>
+      </div>
+
+      <div class="form-group">
+        <label>בחר שיעור לעריכה או צור חדש:</label>
+        <select id="mgrLessonSelect" onchange="window.onMgrLessonChange()"></select>
+      </div>
+
+      <div class="form-group">
+        <label>שם השיעור / נושא:</label>
+        <input type="text" id="mgrLessonTitle" placeholder="לדוגמה: 14. מבדק זריקת כדור-יד">
+      </div>
+
+      <div class="form-group">
+        <label>מחוון / מרכיבי הערכה (יופיע מתחת לשיעור):</label>
+        <textarea id="mgrLessonCriteria" rows="3" placeholder="לדוגמה: מחוון קריטריונים: טכניקה נכונה, יציבות, עוצמה"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;">
+        <button class="btn btn-export" style="flex: 1;" onclick="window.saveMgrLesson()">שמור</button>
+        <button class="btn btn-move" id="btnMoveUpMgrLesson" style="display: none; flex: 1;" onclick="window.moveMgrLesson(-1)">⬆️ למעלה</button>
+        <button class="btn btn-move" id="btnMoveDownMgrLesson" style="display: none; flex: 1;" onclick="window.moveMgrLesson(1)">⬇️ למטה</button>
+        <button class="btn btn-reset" id="btnDeleteMgrLesson" style="display: none; flex: 1;" onclick="window.deleteMgrLesson()">מחק</button>
+        <button class="btn btn-manage" style="flex: 1;" onclick="window.closeLessonManagerModal()">סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ענן -->
+  <div class="modal" id="cloudModal">
+    <div class="modal-content">
+        <div class="modal-header">☁️ סנכרון ענן (תמידי לכל המכשירים)</div>
+        <p style="font-size: 0.9rem; color: #65676b; margin-bottom: 20px;">מאפשר שמירת נתונים מאובטחת בענן, לגישה ולסנכרון מכל מכשיר (סמארטפון או מחשב אחר).</p>
+        
+        <div id="cloudUnconnectedView">
+            <button class="btn btn-lesson-manage" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="window.createNewSync()">
+                צור גיבוי ענן חדש 🚀
+            </button>
+            <div style="text-align: center; margin: 15px 0; font-size: 0.9rem; color: #65676b;">או התחבר לגיבוי קיים (ממכשיר אחר):</div>
+            <div class="form-group" style="display: flex; gap: 8px;">
+                <input type="text" id="existingSyncId" placeholder="הזן קוד סנכרון..." dir="ltr" style="text-align: center; font-family: monospace; font-size: 1.1rem; letter-spacing: 2px;">
+                <button class="btn btn-manage" onclick="window.connectExistingSync()">התחבר</button>
+            </div>
+        </div>
+        
+        <div id="cloudConnectedView" style="display: none; text-align: center;">
+            <div style="background: var(--status-green-bg); border: 1px solid var(--status-green-border); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: #28a745; margin-top: 0;">המכשיר מסונכרן לענן ✅</h3>
+                <p style="margin-bottom: 10px; font-size: 0.9rem; color: #444;">קוד הגיבוי האישי שלך:</p>
+                <div class="sync-code-display" onclick="window.copySyncId()" title="לחץ להעתקה">
+                    <span id="displaySyncId"></span>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">שמור קוד זה כדי להתחבר מהסמארטפון או ממחשב אחר.</p>
+            </div>
+            <button class="btn btn-reset" style="width: 100%; padding: 12px;" onclick="window.disconnectSync()">התנתק מהענן (המידע המקומי יישמר)</button>
+        </div>
+        
+        <br>
+        <button class="btn btn-manage" style="width: 100%;" onclick="window.closeCloudModal()">סגור</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =========================================================
+    // 🔑 הגדרות Firebase שלך:
+    // החלף את הערכים שבתוך הגרשיים בפרטים שקיבלת מ-Firebase Console
+    // =========================================================
+    const myFirebaseConfig = {
+      apiKey: "AIzaSyD0PtDlw-A547sGs6LdgcV7-bCxsVQaEXk",
+      authDomain: "pe-app-db.firebaseapp.com",
+      projectId: "pe-app-db",
+      storageBucket: "pe-app-db.firebasestorage.app",
+      messagingSenderId: "722767574124",
+      appId: "1:722767574124:web:5ff0bcc30310d6dd1e9449"
+    };
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'standalone-pe-app';
+    
+    // בדיקה האם המשתמש הזין מפתח API אישי
+    const firebaseConfig = (myFirebaseConfig.apiKey && myFirebaseConfig.apiKey !== "YOUR_API_KEY") 
+      ? myFirebaseConfig 
+      : (typeof __firebase_config !== 'undefined' 
+          ? JSON.parse(__firebase_config) 
+          : (localStorage.getItem('custom_firebase_config') ? JSON.parse(localStorage.getItem('custom_firebase_config')) : null));
+    
+    let db = null, auth = null, userId = null;
+    let syncTimeout = null;
+    let isCloudReady = false;
+    let currentSyncId = localStorage.getItem('pe_sync_id') || null;
+
+    const cloudIndicator = document.getElementById('cloudIndicator');
+    const cloudText = document.getElementById('cloudText');
+
+    function updateCloudStatus(status) {
+        if (status === 'online') {
+            cloudIndicator.className = 'cloud-indicator online';
+            cloudText.innerText = currentSyncId ? `מחובר לענן (${currentSyncId})` : 'מקומי בלבד (לחץ לסנכרון)';
+        } else if (status === 'syncing') {
+            cloudIndicator.className = 'cloud-indicator syncing';
+            cloudText.innerText = 'מסנכרן לענן...';
+        } else if (status === 'error') {
+            cloudIndicator.className = 'cloud-indicator error';
+            cloudText.innerText = 'שמירה מקומית פעילה';
+        }
+    }
+
+    async function initFirebase() {
+        if (!firebaseConfig) {
+            updateCloudStatus('online'); // שמירה מקומית ב-LocalStorage עובדת מעולה
+            return false;
+        }
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+            userId = auth.currentUser.uid;
+            isCloudReady = true;
+            updateCloudStatus('online');
+            return true;
+        } catch (e) {
+            console.error("Firebase init failed", e);
+            updateCloudStatus('error');
+            return false;
+        }
+    }
+
+    window.scheduleCloudSync = function() {
+        if (!isCloudReady || !currentSyncId) return;
+        
+        updateCloudStatus('syncing');
+        if (syncTimeout) clearTimeout(syncTimeout);
+        
+        syncTimeout = setTimeout(async () => {
+             const dataToSave = {};
+             for (let i = 0; i < localStorage.length; i++) {
+                 const key = localStorage.key(i);
+                 if (key !== 'pe_sync_id') {
+                     dataToSave[key] = localStorage.getItem(key);
+                 }
+             }
+             try {
+                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'syncs', currentSyncId);
+                 await setDoc(docRef, dataToSave);
+                 updateCloudStatus('online');
+             } catch (e) {
+                 console.error("Cloud sync failed", e);
+                 updateCloudStatus('error');
+             }
+        }, 1500); 
+    };
+
+    window.openCloudModal = function() {
+        const modal = document.getElementById('cloudModal');
+        const viewUnconnected = document.getElementById('cloudUnconnectedView');
+        const viewConnected = document.getElementById('cloudConnectedView');
+        const displayId = document.getElementById('displaySyncId');
+        const existingInput = document.getElementById('existingSyncId');
+
+        existingInput.value = '';
+
+        if (currentSyncId) {
+            viewUnconnected.style.display = 'none';
+            viewConnected.style.display = 'block';
+            displayId.innerText = currentSyncId;
+        } else {
+            viewUnconnected.style.display = 'flex';
+            viewConnected.style.display = 'none';
+        }
+
+        modal.style.display = 'flex';
+    };
+
+    window.closeCloudModal = function() {
+        document.getElementById('cloudModal').style.display = 'none';
+    };
+
+    window.createNewSync = async function() {
+        const newId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        currentSyncId = newId;
+        localStorage.setItem('pe_sync_id', currentSyncId);
+        
+        if (isCloudReady) {
+            window.scheduleCloudSync();
+        } else {
+            alert('קוד הגיבוי נוצר! הקוד יישמר מקומית. כדי לחבר מסד נתונים עצמאי ב-GitHub, עקוב אחר המדריך.');
+        }
+        
+        updateCloudStatus('online');
+        window.openCloudModal(); 
+    };
+
+    window.connectExistingSync = async function() {
+        const code = document.getElementById('existingSyncId').value.trim().toUpperCase();
+        if (!code) {
+            alert('נא להזין קוד סנכרון.');
+            return;
+        }
+
+        if (!isCloudReady) {
+            alert('לא הוגדר שרת ענן. שים לב כי הנתונים נשמרים כעת בדפדפן המקומי.');
+            return;
+        }
+
+        try {
+            updateCloudStatus('syncing');
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'syncs', code);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (confirm('התחברות הצליחה! האם לטעון את הנתונים מהענן?')) {
+                    localStorage.clear();
+                    localStorage.setItem('pe_sync_id', code);
+                    currentSyncId = code;
+                    
+                    for (const key in data) {
+                        localStorage.setItem(key, data[key]);
+                    }
+                    
+                    updateCloudStatus('online');
+                    window.closeCloudModal();
+                    
+                    document.querySelectorAll('.grade-section').forEach(sec => sec.style.display = 'none');
+                    document.getElementById(`grade-${currentGrade}`).style.display = 'block';
+                    renderGradeData(currentGrade);
+                    alert('הנתונים סונכרנו בהצלחה!');
+                } else {
+                    updateCloudStatus('online');
+                }
+            } else {
+                updateCloudStatus('error');
+                alert('קוד הסנכרון לא נמצא.');
+            }
+        } catch (e) {
+            console.error(e);
+            updateCloudStatus('error');
+            alert('שגיאה בהתחברות לענן.');
+        }
+    };
+
+    window.disconnectSync = function() {
+        if (confirm('האם להתנתק מהענן? (הנתונים יישארו שמורים מקומית במכשיר זה)')) {
+            currentSyncId = null;
+            localStorage.removeItem('pe_sync_id');
+            updateCloudStatus('online');
+            window.closeCloudModal();
+        }
+    };
+
+    window.copySyncId = function() {
+        if (!currentSyncId) return;
+        try {
+            const el = document.createElement('textarea');
+            el.value = currentSyncId;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert('הקוד הועתק: ' + currentSyncId);
+        } catch(e) {
+            console.error("Copy failed", e);
+        }
+    };
+
+    // נתוני הגיבוי המובנים
+    const EMBEDDED_BACKUP = {
+      "g_m0_l0_cls_ג'3": "false",
+      "g_m0_l0_c1": "false",
+      "d_m0_l0_c0": "true",
+      "v_m0_l0_cls_ו'1": "false",
+      "v_m0_l2_c0": "true",
+      "a_b_m0_l2_cls_א1": "false",
+      "g_m0_l2_c0": "true",
+      "a_b_m0_l1_cls_א1": "false",
+      "curriculum_v": "{\"name\":\"כיתה ו'\",\"months\":[{\"name\":\"ספטמבר\",\"lessons\":[{\"text\":\"1. משחקי הכרות + כללים וסימנים מוסכמים\"},{\"text\":\"2. ראש השנה\"},{\"text\":\"3. לימוד לקיחת דופק!\"},{\"text\":\"4. ריצה/הליכה בקצב חופשי 600 מ' (מגרש)\",\"criteria\":\"\"},{\"text\":\"5. תרגול ריצת 600 מ' – 6 סיבובים על פי זמן (מגרש)\",\"criteria\":\"עבר:2.47, טוב:2.33, מצוין:2.24\"}]},{\"name\":\"אוקטובר\",\"lessons\":[{\"text\":\"6. תרגול לריצה קצרה / מאוץ (60 מ') (מגרש)\",\"criteria\":\"\"},{\"text\":\"7. שבוע הבריאות: מצגת תזונה נכונה + סעודה בריאה בכיתה\"},{\"text\":\"8. ק' למרחק - תרגול צעדי ההרצה (בור קפיצה)\"},{\"text\":\"9. שבוע הבריאות: חידון אינטראקטיבי ליום ההליכה\"},{\"text\":\"10. ק' למרחק - תרגול 'הנחיתה' (בור קפיצה)\"}]},{\"name\":\"נובמבר\",\"lessons\":[{\"text\":\"11. מבדק קפיצה למרחק 'הנחיתה' ללא ציון – מחוון קריטריונים (בור קפיצה)\",\"criteria\":\"\"},{\"text\":\"12. הסבר ותרגול – 'מתח ב-3 שלבים' (2 תלמידים כל פעם - חדר ספורט)\",\"criteria\":\"\"},{\"text\":\"13. תרגול מתח (חדר ספורט - 2 כל פעם)\",\"criteria\":\"עבר-1, טוב-2, מצוין-4\"},{\"text\":\"14. ק' למרחק - תרגול מלא (בור קפיצה)\",\"criteria\":\"\"},{\"text\":\"15. מבדק ללא ציון ק' למרחק- צעדי ההרצה על פי מחוון קריטריונים (בור קפיצה)\",\"criteria\":\"\"}]},{\"name\":\"דצמבר\",\"lessons\":[{\"text\":\"16. מבדק ק' למרחק - מלא (בור קפיצה)\",\"criteria\":\"עובר: 0.5מ', טוב: 1מ', מצוין: 1.5מ'\"},{\"text\":\"17. מבדק לריצה קצרה/מאוץ (60 מ' על הקו הלבן)\",\"criteria\":\"עבר-11.2 ש', טוב-10.2, מצוין-9.8\"},{\"text\":\"18. תרגול קפיצה לגובה סגנון מספרת (אמפי עם מזרון גבינה ומזרוני גיבוי + עמודים)\",\"criteria\":\"\"},{\"text\":\"19. משחקי כדורסל - '21, בשלשות, חמישיות, חצי על חצי'\",\"criteria\":\"\"},{\"text\":\"20. כדורסל - 'רגל-ציר' (לימוד יחידני)\",\"criteria\":\"\"}]},{\"name\":\"ינואר\",\"lessons\":[{\"text\":\"21. כדורסל - 'רגל-ציר' תו\\\"כ פעולות משחק\",\"criteria\":\"\"},{\"text\":\"22. כדורסל - 'צעד וחצי' (לימוד יחידני)\",\"criteria\":\"\"},{\"text\":\"23. כדורסל - שילוב 'צעד וחצי' עם 'כדרור לסל'\",\"criteria\":\"\"},{\"text\":\"24. כדורסל - שילוב 'צעד וחצי' תו\\\"כ פעולות משחק\",\"criteria\":\"\"},{\"text\":\"25. מבדק קפיצה לגובה (אמפי)\",\"criteria\":\"50 ס\\\"מ-עובר, 70 ס\\\"מ-טוב, 90 ס\\\"מ-מצוין\"}]},{\"name\":\"פברואר\",\"lessons\":[{\"text\":\"26. מבדק ריצת 600 מ' על פי זמן\",\"criteria\":\"עבר:2.47 דק', טוב: 2.33 דק', מצוין – 2.24\"},{\"text\":\"27. התעמלות - 'לימוד גלגול ברחיפה'\",\"criteria\":\"\"},{\"text\":\"28. התעמלות - 'גלגול ברחיפה ברצף מעבר למכשולים ' (רמת קושי גבוהה)\",\"criteria\":\"\"},{\"text\":\"29. התעמלות - 'עמידת ידיים באופן עצמאי על גבי הקיר'\",\"criteria\":\"\"},{\"text\":\"30. התעמלות - 'עמידת ידיים באופן עצמאי בלי עזרה'\",\"criteria\":\"\"}]},{\"name\":\"מרץ\",\"lessons\":[{\"text\":\"31. תרגול '4X10' (במגרש על הקו הלבן עם 2 קונוסים)\",\"criteria\":\"עבר:12.6, טוב:12.2, מצוין–12.1\"},{\"text\":\"32. שבוע חנ\\\"ג – 'תחנות על פי מרכיבי כוש\\\"ג'\",\"criteria\":\"\"},{\"text\":\"33. כדור יד - חזרה על קווי המגרש וחוקיו ע\\\"י משחקים\",\"criteria\":\"\"},{\"text\":\"34. שבוע חנ\\\"ג: יציאה לספורטק לריצה משותפת וחלוקת תעודות!\",\"criteria\":\"\"},{\"text\":\"35. כדור יד - 'מסירת כתף'\",\"criteria\":\"\"}]},{\"name\":\"אפריל\",\"lessons\":[{\"text\":\"36. הסבר ותרגול 'בטן ב-30 ש'' (כל שלשה עם מזרון - 10 מזרונים)\",\"criteria\":\"עבר:20, טוב:22, מצוין-24\"},{\"text\":\"37. כדור יד - 'זריקת ניתור'\",\"criteria\":\"\"},{\"text\":\"38. כדורעף - 'מסירה עילית' (מגרש)\",\"criteria\":\"\"},{\"text\":\"39. מבדק '4X10'\",\"criteria\":\"עבר:12.6, טוב:12.2, מצוין–12.1\"},{\"text\":\"40. כדורעף - 'קבלה תחתית' (מגרש)\",\"criteria\":\"\"}]},{\"name\":\"מאי\",\"lessons\":[{\"text\":\"41. כדורעף - 'מכת פתיחה תחתית' (מגרש)\",\"criteria\":\"\"},{\"text\":\"42. מבדק – 'מתח'\",\"criteria\":\"עבר-1, טוב-2, מצוין-4\"},{\"text\":\"43. פיתוח כושר גופני עם הדלגית לפי זמנים\",\"criteria\":\"\"},{\"text\":\"44. משחקי פנאי ונופש\",\"criteria\":\"\"},{\"text\":\"45. מבדק 'בטן ב-30 ש' (מזרון במגרש - אחד אחד)\",\"criteria\":\"עבר:20 , טוב:22, מצוין – 24\"}]},{\"name\":\"יוני\",\"lessons\":[{\"text\":\"46. משחקי פנאי ונופש\",\"criteria\":\"\"},{\"text\":\"47. שבועות\",\"criteria\":\"\"},{\"text\":\"48. משחק 'בית שדה'\",\"criteria\":\"\"},{\"text\":\"49. אימון מדרגות\",\"criteria\":\"\"},{\"text\":\"50. משחק פנאי ונופש 'טאצ'-דאון' וסיכום שנה\",\"criteria\":\"\"}]}]}",
+      "curriculum_h": "{\"name\":\"כיתה ה'\",\"months\":[{\"name\":\"ספטמבר\",\"lessons\":[{\"text\":\"1. משחקי הכרות + כללים וסימנים מוסכמים\"},{\"text\":\"2. ראש השנה\"},{\"text\":\"3. לימוד לקיחת דופק!\"},{\"text\":\"4. ריצה/הליכה בקצב חופשי 600 מ' (מגרש)\"},{\"text\":\"5. תרגול ריצת 600 מ' – 6 סיבובים על פי זמן\",\"criteria\":\"עבר:2.47, טוב:2.33, מצוין:2.24\"}]},{\"name\":\"אוקטובר\",\"lessons\":[{\"text\":\"6. תרגול לריצה קצרה/מאוץ (60 מ') (מגרש)\",\"criteria\":\"\"},{\"text\":\"7. שבוע הבריאות: מצגת תזונה נכונה + סעודה בריאה בכיתה\"},{\"text\":\"8. ק' למרחק- תרגול צעדי ההרצה (בור קפיצה)\"},{\"text\":\"9. שבוע הבריאות: חידון אינטראקטיבי ליום ההליכה\"},{\"text\":\"10. ק' למרחק- תרגול 'הנחיתה' (בור קפיצה)\",\"criteria\":\"\"}]},{\"name\":\"נובמבר\",\"lessons\":[{\"text\":\"11. מבדק קפיצה למרחק 'הנחיתה' ללא ציון – מחוון קריטריונים (בור קפיצה)\",\"criteria\":\"\"},{\"text\":\"12. הסבר ותרגול – 'מתח ב-3 שלבים' (2 תלמידים כל פעם - חדר ספורט)\",\"criteria\":\"\"},{\"text\":\"13. תרגול – 'מתח' (חדר ספורט - 2 כל פעם)\",\"criteria\":\"עבר-1, טוב-2, מצוין-4\"},{\"text\":\"14. ק' למרחק- תרגול מלא (בור קפיצה)\",\"criteria\":\"\"},{\"text\":\"15. מבדק ללא ציון ק' למרחק- צעדי ההרצה על פי מחוון קריטריונים (בור קפיצה)\",\"criteria\":\"\"}]},{\"name\":\"דצמבר\",\"lessons\":[{\"text\":\"16. מבדק ק' למרחק - מלא\",\"criteria\":\"עובר: 0.5מ', טוב: 1מ', מצוין: 1.5מ'\"},{\"text\":\"17. מבדק לריצה קצרה/מאוץ (60 מ' על הקו הלבן)\",\"criteria\":\"עבר-11.2 ש', טוב-10.2, מצוין-9.8\"},{\"text\":\"18. תרגול קפיצה לגובה סגנון מספרת (אמפי עם מזרון גבינה ומזרוני גיבוי + עמודים)\",\"criteria\":\"\"},{\"text\":\"19. משחקי כדורסל - '21, בשלשות, חמישיות, חצי על חצי'\"},{\"text\":\"20. כדורסל - 'רגל-ציר' (לימוד יחידני)\"}]},{\"name\":\"ינואר\",\"lessons\":[{\"text\":\"21. כדורסל - 'רגל-ציר' תו\\\"כ פעולות משחק\"},{\"text\":\"22. כדורסל - 'צעד וחצי' (לימוד יחידני)\"},{\"text\":\"23. כדורסל - שילוב 'צעד וחצי' עם 'כדרור לסל'\"},{\"text\":\"24. כדורסל - שילוב 'צעד וחצי' תו\\\"כ פעולות משחק\"},{\"text\":\"25. מבדק קפיצה לגובה (אמפי)\",\"criteria\":\"50 ס\\\"מ-עובר, 70 ס\\\"מ-טוב, 90 ס\\\"מ-מצוין\"}]},{\"name\":\"פברואר\",\"lessons\":[{\"text\":\"26. מבדק ריצת 600 מ' על פי זמן\",\"criteria\":\"עבר:2.47 דק', טוב: 2.33 דק', מצוין – 2.24\"},{\"text\":\"27. התעמלות - 'לימוד גלגול ברחיפה'\"},{\"text\":\"28. התעמלות - 'גלגול ברחיפה  ברצף מעבר למכשולים ' (רמת קושי גבוהה)\",\"criteria\":\"\"},{\"text\":\"29. התעמלות - 'עמידת ידיים באופן עצמאי על גבי הקיר'\"},{\"text\":\"30. התעמלות - 'עמידת ידיים באופן עצמאי בלי עזרה'\"}]},{\"name\":\"מרץ\",\"lessons\":[{\"text\":\"31. תרגול '4X10' (במגרש על הקו הלבן עם 2 קונוסים)\",\"criteria\":\"עבר:12.6, טוב:12.2, מצוין–12.1\"},{\"text\":\"32. שבוע חנ\\\"ג – 'תחנות על פי מרכיבי כוש\\\"ג'\"},{\"text\":\"33. כדור יד - חזרה על קווי המגרש וחוקיו ע\\\"י משחקים\"},{\"text\":\"34. שבוע חנ\\\"ג: יציאה לספורטק לריצה משותפת וחלוקת תעודות!\"},{\"text\":\"35. כדור יד - 'מסירת כתף'\"}]},{\"name\":\"אפריל\",\"lessons\":[{\"text\":\"36. הסבר ותרגול 'בטן ב-30 ש'' (כל שלשה עם מזרון  - 10 מזרונים)\",\"criteria\":\"עבר:20, טוב:22, מצוין-24\"},{\"text\":\"37. כדור יד - 'זריקת ניתור'\"},{\"text\":\"38. כדורעף - 'מסירה עילית' (מגרש)\",\"criteria\":\"\"},{\"text\":\"39. מבדק '4X10'\",\"criteria\":\"עבר:12.6, טוב:12.2, מצוין–12.1\"},{\"text\":\"40. כדורעף - 'קבלה תחתית' (מגרש)\",\"criteria\":\"\"}]},{\"name\":\"מאי\",\"lessons\":[{\"text\":\"41. כדורעף - 'מכת פתיחה תחתית' (מגרש)\",\"criteria\":\"\"},{\"text\":\"42. מבדק – 'מתח'\",\"criteria\":\"עבר-1, טוב-2, מצוין-4\"},{\"text\":\"43. פיתוח כושר גופני עם הדלגית לפי זמנים\"},{\"text\":\"44. משחקי פנאי ונופש\"},{\"text\":\"45. מבדק 'בטן ב-30 ש' (מזרון במגרש - אחד אחד)\",\"criteria\":\"עבר:20 , טוב:22, מצוין – 24\"}]},{\"name\":\"יוני\",\"lessons\":[{\"text\":\"46. משחקי פנאי ונופש\"},{\"text\":\"47. שבועות\"},{\"text\":\"48. משחק 'בית שדה'\"},{\"text\":\"49. אימון מדרגות\"},{\"text\":\"50. משחק פנאי ונופש 'טאצ'-דאון' וסיכום שנה\"}]}]}",
+      "d_m0_l2_c1": "true",
+      "v_m0_l0_c0": "true",
+      "g_m0_l4_c2": "true",
+      "g_m0_l0_cls_ג'1": "false",
+      "d_m0_l2_cls_ד'1": "false",
+      "d_m1_l1_c1": "true",
+      "g_m0_l0_c2": "false",
+      "curriculum_a_b": "{\"name\":\"כיתות א'-ב'\",\"months\":[{\"name\":\"ספטמבר\",\"lessons\":[{\"text\":\"1. משחקי הכרות + כללים וסימנים מוסכמים\",\"criteria\":\"\"},{\"text\":\"2. כוש\\\"ג עם שמות של ילדים בעברית (קונוסים עם אותיות)\"},{\"text\":\"3. משחק 'הטבע את הספינה' במגרש\"},{\"text\":\"4. הכרת חלקי הגוף\"},{\"text\":\"5. הכרת הגוף בעזרת החושים\"}]},{\"name\":\"אוקטובר\",\"lessons\":[{\"text\":\"6. הכרת הגוף בעזרת חפצים\"},{\"text\":\"7. הכרת הגוף בעזרת דלגית\"},{\"text\":\"8. כפיפה ופשיטה בשילוב כדרור\"},{\"text\":\"9. טווחי תנועה בגוף א'\"},{\"text\":\"10. טווחי תנועה בגוף ב'\"}]},{\"name\":\"נובמבר\",\"lessons\":[{\"text\":\"11. הפניות וסיבובים\"},{\"text\":\"12. הפעלות עם המצנח\"},{\"text\":\"13. קירוב והרחקת אברים\"},{\"text\":\"14. משחק הוקי במגרש\",\"criteria\":\"\"},{\"text\":\"15. חנוכה\"}]},{\"name\":\"דצמבר\",\"lessons\":[{\"text\":\"16. כוש\\\"ג עם מספרים (קונוסים עם מספרים – 1 עד 10)\"},{\"text\":\"17. מצגת תזונה נכונה\"},{\"text\":\"18. סעודה בריאה בכיתה\"},{\"text\":\"19. מסלולים-ישר וזיגזג חדש\"},{\"text\":\"20. משחק 'בית שדה'\"}]},{\"name\":\"ינואר\",\"lessons\":[{\"text\":\"21. מרחב האישי והכללי\"},{\"text\":\"22. מסלולים-מפותל, עגול\"},{\"text\":\"23. מעל, מתחת, ליד ובין\"},{\"text\":\"24. קרוב מ.. רחוק מ..\"},{\"text\":\"25. שיווי משקל סטאטי ודינאמי\"}]},{\"name\":\"פברואר\",\"lessons\":[{\"text\":\"26. שיווי משקל המשך\"},{\"text\":\"27. רמות גובה-גבוהה בינוני ונמוך\"},{\"text\":\"28. המשך רמות גובה - בעזרת כדור\"},{\"text\":\"29. כיוונים במרחב-לפנים, לאחור ולצדדים\"},{\"text\":\"30. כיוונים במרחב-כיוונים במרחב המשך\"}]},{\"name\":\"מרץ\",\"lessons\":[{\"text\":\"31. התעמלות-גלגול לפנים\"},{\"text\":\"32. חיזוק העצמות 1\"},{\"text\":\"33. חיזוק העצמות 2 (בתחנות)\"},{\"text\":\"34. זריקה ותפיסה\"},{\"text\":\"35. זריקה ותפיסה+רמות גובה\"}]},{\"name\":\"אפריל\",\"lessons\":[{\"text\":\"36. עמידת ידיים\"},{\"text\":\"37. קליעה למטרה בתחנות\"},{\"text\":\"38. ויסות כוח 1\"},{\"text\":\"39. פסח\"},{\"text\":\"40. פסח\"}]},{\"name\":\"מאי\",\"lessons\":[{\"text\":\"41. ויסות כוח 2\"},{\"text\":\"42. יום העצמאות\"},{\"text\":\"43. שיעור skipping (כוח מתפרץ)(מותאם לגיל)\"},{\"text\":\"44. מהר ולאט\"},{\"text\":\"45. ניתור ונחיתה\"}]},{\"name\":\"יוני\",\"lessons\":[{\"text\":\"46. שבועות\"},{\"text\":\"47. שבועות\"},{\"text\":\"48. שבועות\"},{\"text\":\"49. הכרות עם הדלגית\"},{\"text\":\"50. משחק פנאי ונופש עם 'המצנח' וסיכום שנה\"}]}]}",
+      "d_m1_l0_c1": "true",
+      "classes_a_b": "[\"א1\",\"ב1\"]",
+      "curriculum_d": "{\"name\":\"כיתה ד'\",\"months\":[{\"name\":\"ספטמבר\",\"lessons\":[{\"text\":\"1. משחקי הכרות + כללים וסימנים מוסכמים\"},{\"text\":\"2. ראש השנה\"},{\"text\":\"3. כוש\\\"ג עם שמות של ילדים בעברית (קונוסים עם אותיות)\"},{\"text\":\"4. ריצה/הליכה בקצב חופשי 400 מ'\"},{\"text\":\"5. תרגול כדרור מיד ליד בכדורסל-הלוך חזור(מגרש)\"}]},{\"name\":\"אוקטובר\",\"lessons\":[{\"text\":\"6. מבדק כדרור מיד ליד בכדורסל-הלוך חזור(מגרש)\"},{\"text\":\"7. תרגול התקדמות בשיווי משקל על ספסל / עם קונוס על הראש\"},{\"text\":\"8. שבוע הבריאות ויום ההליכה: מצגת תזונה נכונה + סעודה בריאה\"},{\"text\":\"9. מבדק התקדמות בשיווי משקל על ספסל / עם קונוס על הראש\"},{\"text\":\"10. שבוע הבריאות ויום ההליכה: חידון אינטראקטיבי ליום ההליכה\"}]},{\"name\":\"נובמבר\",\"lessons\":[{\"text\":\"11. הכנה לקפיצה לגובה (בעזרת אביזרים)\"},{\"text\":\"12. משחקי קפיצה לגובה\"},{\"text\":\"13. תרגול 'פלאנק'\",\"criteria\":\"30 ש' - עבר, 40ש' – טוב, 50 – ט.מאוד, דקה – מצויין\"},{\"text\":\"14. מבדק 'פלאנק'\",\"criteria\":\"30 ש' - עבר, 40ש' – טוב, 50 – ט.מאוד, דקה – מצויין\"},{\"text\":\"15. חנוכה\"}]},{\"name\":\"דצמבר\",\"lessons\":[{\"text\":\"16. כוש\\\"ג עם שמות של ילדים באנגלית\"},{\"text\":\"17. תרגול 'ניתורים רצופים בדלגית' (דקה)\",\"criteria\":\"עבר:10   , טוב: 30, מצוין – 50\"},{\"text\":\"18. מבדק 'ניתורים רצופים בדלגית' (בדקה)\",\"criteria\":\"עבר:10   , טוב: 30, מצוין – 50\"},{\"text\":\"19. תרגול 'עמידת ידיים ליד הקיר ובתמיכתו'\"},{\"text\":\"20. משחק 'בית-שדה'\"}]},{\"name\":\"ינואר\",\"lessons\":[{\"text\":\"21. כדורסל-'שליטה בכדור'\"},{\"text\":\"22. כדורסל-היכרות עם קווי המגרש וחוקיו ע\\\"י משחקים\"},{\"text\":\"23. כדורסל-'מסירת חזה'\"},{\"text\":\"24. כדורסל-'מסירת 2 שליש'\"},{\"text\":\"25. כדורסל-'קליעה לסל מהמקום ובתזוזה בזוגות'\"}]},{\"name\":\"פברואר\",\"lessons\":[{\"text\":\"26. כדורסל-שילוב מיומנויות בסיס במשחקונים\"},{\"text\":\"27. התעמלות-'גלגול לפנים'\"},{\"text\":\"28. התעמלות-'גלגול לפנים ברצף'\"},{\"text\":\"29. התעמלות-'עמידת ידיים בעזרת חמור/ארגז'\"},{\"text\":\"30. התעמלות-'עמידת ידיים בעזרת חבר'\"}]},{\"name\":\"מרץ\",\"lessons\":[{\"text\":\"31. שבוע חנ\\\"ג – 'תחנות על פי מרכיבי כוש\\\"ג'\"},{\"text\":\"32. שבוע חנ\\\"ג: יציאה לספורטק לריצה משותפת וחלוקת תעודות!\"},{\"text\":\"33. כדור יד-היכרות עם קווי המגרש וחוקיו\"},{\"text\":\"34. כדור יד-'כדרור'\"},{\"text\":\"35. כדור יד-'שליטה בכדור'\"}]},{\"name\":\"אפריל\",\"lessons\":[{\"text\":\"36. כדור יד-'משחקונים עם כדור יד'\"},{\"text\":\"37. כדורעף-משחק 'העבר את הכדור' (מגרש)\",\"criteria\":\"\"},{\"text\":\"38. כדורעף-היכרות עם קווי המגרש וחוקיו  (מגרש)\",\"criteria\":\"\"},{\"text\":\"39. לימוד קפיצה לרוחק מהמקום (עם מזרונים במגרש)\"},{\"text\":\"40. כוש\\\"ג עם מספרים (קונוסים 1-30 + תרגילים)\"}]},{\"name\":\"מאי\",\"lessons\":[{\"text\":\"41. כדורעף-מסירה 'עילית'  (מגרש)\",\"criteria\":\"\"},{\"text\":\"42. יום העצמאות\"},{\"text\":\"43. משחקי שליחים עם הדלגית\"},{\"text\":\"44. מרכיבי הכושר גופני בתחנות\"},{\"text\":\"45. לימוד ביצוע כפיפות בטן + תרגול בזוגות  (מגרש + 15 מזרונים)\",\"criteria\":\"\"}]},{\"name\":\"יוני\",\"lessons\":[{\"text\":\"46. תרגול קפיצה לרוחק מהמקום (בבור הקפיצה בטור)\"},{\"text\":\"47. 'בטן ב-30 ש'' - תרגול בזוגות  (מגרש + 15 מזרונים)\",\"criteria\":\"\"},{\"text\":\"48. שיפור קפיצה לרוחק מהמקום\"},{\"text\":\"49. 'שיפור בטן ב-30 ש'' - אישי (מזרן אחד עם 2 עוזרים)\",\"criteria\":\"\"},{\"text\":\"50. פעילות פנאי ונופש עם 'המצנח' וסיכום שנה\"}]}]}",
+      "d_m1_l0_c1": "true",
+      "g_m0_l4_c0": "true",
+      "v_m0_l2_c1": "true",
+      "d_m0_l2_c2": "true",
+      "v_m0_l3_c0": "true",
+      "v_m0_l3_c2": "true",
+      "g_m0_l4_c1": "true",
+      "v_m0_l1_c0": "false",
+      "g_m1_l0_c1": "true",
+      "v_m0_l2_c2": "true",
+      "v_m0_l3_c1": "true",
+      "d_m0_l2_cls_ד'3": "false",
+      "a_b_m0_l0_cls_א1": "false",
+      "v_m0_l0_cls_ו'3": "false",
+      "g_m1_l0_c0": "true",
+      "curriculum_g": "{\"name\":\"כיתה ג'\",\"months\":[{\"name\":\"ספטמבר\",\"lessons\":[{\"text\":\"1. משחקי הכרות + כללים וסימנים מוסכמים\"},{\"text\":\"3. ראש השנה\"},{\"text\":\"4.ראש השנה\",\"criteria\":\"\"},{\"text\":\"5. ריצה/הליכה בקצב חופשי 300 מ'\",\"criteria\":\"\"},{\"text\":\"6. מדידת ריצה 300 מ'\",\"criteria\":\"\"}]},{\"name\":\"אוקטובר\",\"lessons\":[{\"text\":\"6. הכנה לריצה קצרה (30 מ')\"},{\"text\":\"7. מדידת ריצה קצרה (30 מ')\"},{\"text\":\"8. ק' למרחק מהמקום\"},{\"text\":\"9. ק' לרוחק מהמקום-לימוד\"},{\"text\":\"10. הכנה לקפיצה לגובה (בעזרת אביזרים)\"}]},{\"name\":\"נובמבר\",\"lessons\":[{\"text\":\"11. משחקי קפיצה לגובה\"},{\"text\":\"12. הכנה לזריקת כדור-יד\"},{\"text\":\"13. תרגול זריקת כדור-יד\"},{\"text\":\"14. מדידת זריקת כדור-יד\"},{\"text\":\"15. חנוכה\"}]},{\"name\":\"דצמבר\",\"lessons\":[{\"text\":\"16. חנוכה\"},{\"text\":\"17. מצגת תזונה נכונה\"},{\"text\":\"18. סעודה בריאה בכיתה\"},{\"text\":\"19. משחק נופש-'כדורסל חי'\"},{\"text\":\"20. כדורסל-'כדרור'\"}]},{\"name\":\"ינואר\",\"lessons\":[{\"text\":\"21. כדורסל-'שליטה בכדור'\"},{\"text\":\"22. כדורסל-היכרות עם קווי המגרש וחוקיו ע\\\"י משחקים\"},{\"text\":\"23. כדורסל-'מסירת חזה'\"},{\"text\":\"24. כדורסל-'מסירת 2 שליש'\"},{\"text\":\"25. כדורסל-'קליעה לסל מהמקום ובתזוזה בזוגות'\"}]},{\"name\":\"פברואר\",\"lessons\":[{\"text\":\"26. כדורסל-שילוב מיומנויות בסיס במשחקונים\"},{\"text\":\"27. התעמלות-'גלגול לפנים'\"},{\"text\":\"28. התעמלות-'גלגול לפנים ברצף'\"},{\"text\":\"29. התעמלות-'עמידת ידיים בעזרת חמור/ארגז'\"},{\"text\":\"30. התעמלות-'עמידת ידיים בעזרת חבר'\"}]},{\"name\":\"מרץ\",\"lessons\":[{\"text\":\"31. התעמלות-'עמידת ידיים באופן עצמאי'\"},{\"text\":\"32. כוש\\\"ג עם שמות של ילדים בעברית (קונוסים עם אותיות)\"},{\"text\":\"33. כדור יד-היכרות עם קווי המגרש וחוקיו ע\\\"י משחקים\"},{\"text\":\"34. כדור יד-'כדרור'\"},{\"text\":\"35. כדור יד-'שליטה בכדור'\"}]},{\"name\":\"אפריל\",\"lessons\":[{\"text\":\"36. כוש\\\"ג עם שמות של ילדים באנגלית (קונוסים עם אותיות)\"},{\"text\":\"37. כדורעף-משחק 'העבר את הכדור' (בלי חוקים)\"},{\"text\":\"38. כדורעף-היכרות עם קווי המגרש וחוקיו ע\\\"י משחקים\"},{\"text\":\"39. כוש\\\"ג עם מספרים (קונוסים 1-30 + תרגילים)\"},{\"text\":\"40. פסח\"}]},{\"name\":\"מאי\",\"lessons\":[{\"text\":\"41. כדורעף-מסירה 'עילית'\"},{\"text\":\"42. יום העצמאות\"},{\"text\":\"43. משחקי שליחים עם הדלגית\"},{\"text\":\"44. מרכיבי הכושר גופני בתחנות\"},{\"text\":\"45. משחק פנאי ונופש 'בית-שדה'\"}]},{\"name\":\"יוני\",\"lessons\":[{\"text\":\"46. שבועות\"},{\"text\":\"47. שבועות\"},{\"text\":\"48. שבועות\"},{\"text\":\"49. אימון מדרגות\"},{\"text\":\"50. פעילות פנאי ונופש עם 'המצנח' וסיכום שנה\"}]}]}",
+      "g_m0_l0_c0": "false"
+    };
+
+    let currentGrade = 'a_b';
+
+    const defaultClasses = {
+      a_b: ["א'1", "א'2", "ב'1", "ב'2"],
+      g: ["ג'1", "ג'3"],
+      d: ["ד'1", "ד'3"],
+      h: ["ה'1", "ה'3"],
+      v: ["ו'1", "ו'3"]
+    };
+
+    const initialCurriculumData = {
+      a_b: { name: "כיתות א'-ב'", months: [] },
+      g: { name: "כיתה ג'", months: [] },
+      d: { name: "כיתה ד'", months: [] },
+      h: { name: "כיתה ה'", months: [] },
+      v: { name: "כיתה ו'", months: [] }
+    };
+
+    function getCurriculumData(gradeKey) {
+      const stored = localStorage.getItem(`curriculum_${gradeKey}`);
+      if (stored) return JSON.parse(stored);
+      return initialCurriculumData[gradeKey] || { name: gradeKey, months: [] };
+    }
+
+    function saveCurriculumData(gradeKey, data) {
+      localStorage.setItem(`curriculum_${gradeKey}`, JSON.stringify(data));
+      window.scheduleCloudSync();
+    }
+
+    function getClasses(gradeKey) {
+      const stored = localStorage.getItem(`classes_${gradeKey}`);
+      if (stored) return JSON.parse(stored);
+      return defaultClasses[gradeKey] || [];
+    }
+
+    function saveClasses(gradeKey, classesArray) {
+      localStorage.setItem(`classes_${gradeKey}`, JSON.stringify(classesArray));
+      window.scheduleCloudSync();
+    }
+
+    function renderGradeData(gradeKey) {
+      const gradeInfo = getCurriculumData(gradeKey);
+      const classes = getClasses(gradeKey);
+      const container = document.getElementById(`grade-${gradeKey}`);
+      container.innerHTML = '';
+
+      if (gradeInfo.months) {
+        gradeInfo.months.forEach((month, mIdx) => {
+          const monthCard = document.createElement('div');
+          monthCard.className = 'month-card';
+
+          const monthHeader = document.createElement('div');
+          monthHeader.className = 'month-header';
+          monthHeader.innerText = month.name;
+          monthCard.appendChild(monthHeader);
+
+          if(month.lessons) {
+              month.lessons.forEach((lessonObj, lIdx) => {
+                const lessonId = `${gradeKey}_m${mIdx}_l${lIdx}`;
+                const lessonItem = document.createElement('div');
+                lessonItem.className = 'lesson-item';
+                lessonItem.id = `item_${lessonId}`;
+
+                const lessonContent = document.createElement('div');
+                lessonContent.className = 'lesson-content';
+
+                const lessonText = document.createElement('div');
+                lessonText.className = 'lesson-text';
+                lessonText.innerText = lessonObj.text || lessonObj;
+                lessonContent.appendChild(lessonText);
+
+                if (lessonObj.criteria && lessonObj.criteria.trim() !== '') {
+                  const criteriaDiv = document.createElement('div');
+                  criteriaDiv.className = 'assessment-criteria';
+                  criteriaDiv.innerText = `🎯 מרכיבי הערכה / מחוון: ${lessonObj.criteria}`;
+                  lessonContent.appendChild(criteriaDiv);
+                }
+
+                lessonItem.appendChild(lessonContent);
+
+                const checkboxesDiv = document.createElement('div');
+                checkboxesDiv.className = 'checkboxes';
+
+                classes.forEach((cls) => {
+                  const cbId = `${lessonId}_cls_${cls}`;
+                  const label = document.createElement('label');
+                  label.className = 'checkbox-label';
+
+                  const checkbox = document.createElement('input');
+                  checkbox.type = 'checkbox';
+                  checkbox.id = cbId;
+                  
+                  checkbox.checked = localStorage.getItem(cbId) === 'true';
+
+                  checkbox.addEventListener('change', () => {
+                    localStorage.setItem(cbId, checkbox.checked);
+                    updateLessonStatus(lessonId, classes);
+                    window.scheduleCloudSync();
+                  });
+
+                  label.appendChild(checkbox);
+                  label.appendChild(document.createTextNode(cls));
+                  checkboxesDiv.appendChild(label);
+                });
+
+                lessonItem.appendChild(checkboxesDiv);
+                monthCard.appendChild(lessonItem);
+              });
+          }
+          container.appendChild(monthCard);
+        });
+
+        gradeInfo.months.forEach((month, mIdx) => {
+          if(month.lessons) {
+              month.lessons.forEach((_, lIdx) => {
+                updateLessonStatus(`${gradeKey}_m${mIdx}_l${lIdx}`, classes);
+              });
+          }
+        });
+      }
+    }
+
+    function updateLessonStatus(lessonId, classes) {
+      if (!classes || classes.length === 0) {
+        const itemElem = document.getElementById(`item_${lessonId}`);
+        if (itemElem) itemElem.className = 'lesson-item';
+        return;
+      }
+
+      let checkedCount = 0;
+      classes.forEach(cls => {
+        if (localStorage.getItem(`${lessonId}_cls_${cls}`) === 'true') {
+          checkedCount++;
+        }
+      });
+
+      const itemElem = document.getElementById(`item_${lessonId}`);
+      if (!itemElem) return;
+
+      itemElem.classList.remove('yellow', 'green');
+
+      if (checkedCount === classes.length && classes.length > 0) {
+        itemElem.classList.add('green');
+      } else if (checkedCount > 0) {
+        itemElem.classList.add('yellow');
+      }
+    }
+
+    window.switchGrade = function(gradeKey) {
+      currentGrade = gradeKey;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.grade-section').forEach(sec => sec.style.display = 'none');
+
+      event.target.classList.add('active');
+      const activeSec = document.getElementById(`grade-${gradeKey}`);
+      activeSec.style.display = 'block';
+
+      renderGradeData(gradeKey);
+      window.filterLessons();
+    };
+
+    window.filterLessons = function() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const activeSec = document.getElementById(`grade-${currentGrade}`);
+      
+      const items = activeSec.querySelectorAll('.lesson-item');
+      items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        const matchesQuery = text.includes(query);
+        
+        let matchesStatus = true;
+        if (status === 'red') matchesStatus = !item.classList.contains('yellow') && !item.classList.contains('green');
+        if (status === 'yellow') matchesStatus = item.classList.contains('yellow');
+        if (status === 'green') matchesStatus = item.classList.contains('green');
+
+        if (matchesQuery && matchesStatus) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    };
+
+    window.openLessonManagerModal = function() {
+      const modal = document.getElementById('lessonManagerModal');
+      const data = getCurriculumData(currentGrade);
+      const monthSelect = document.getElementById('mgrMonthSelect');
+      
+      monthSelect.innerHTML = '';
+      if(data.months) {
+          data.months.forEach((m, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.innerText = m.name;
+            monthSelect.appendChild(opt);
+          });
+      }
+
+      if(monthSelect.options.length > 0) {
+        monthSelect.selectedIndex = 0;
+        window.onMgrMonthChange();
+      }
+
+      modal.style.display = 'flex';
+    };
+
+    window.closeLessonManagerModal = function() {
+      document.getElementById('lessonManagerModal').style.display = 'none';
+    };
+
+    window.onMgrMonthChange = function() {
+      const data = getCurriculumData(currentGrade);
+      const monthVal = document.getElementById('mgrMonthSelect').value;
+      if (!monthVal) return;
+      const mIdx = parseInt(monthVal);
+      const lessonSelect = document.getElementById('mgrLessonSelect');
+
+      lessonSelect.innerHTML = '<option value="new">[+ הוסף שיעור חדש לחודש זה]</option>';
+      if (data.months[mIdx] && data.months[mIdx].lessons) {
+        data.months[mIdx].lessons.forEach((l, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.innerText = l.text || l;
+          lessonSelect.appendChild(opt);
+        });
+      }
+
+      lessonSelect.selectedIndex = 0;
+      window.onMgrLessonChange();
+    };
+
+    window.onMgrLessonChange = function() {
+      const data = getCurriculumData(currentGrade);
+      const mIdx = parseInt(document.getElementById('mgrMonthSelect').value);
+      const lVal = document.getElementById('mgrLessonSelect').value;
+      
+      const btnDelete = document.getElementById('btnDeleteMgrLesson');
+      const btnMoveUp = document.getElementById('btnMoveUpMgrLesson');
+      const btnMoveDown = document.getElementById('btnMoveDownMgrLesson');
+
+      if (lVal === 'new') {
+        document.getElementById('mgrLessonTitle').value = '';
+        document.getElementById('mgrLessonCriteria').value = '';
+        
+        btnDelete.style.display = 'none';
+        btnMoveUp.style.display = 'none';
+        btnMoveDown.style.display = 'none';
+      } else {
+        const lIdx = parseInt(lVal);
+        const lessonObj = data.months[mIdx].lessons[lIdx];
+        document.getElementById('mgrLessonTitle').value = lessonObj.text || lessonObj || '';
+        document.getElementById('mgrLessonCriteria').value = lessonObj.criteria || '';
+        
+        btnDelete.style.display = 'inline-flex';
+        btnMoveUp.style.display = lIdx > 0 ? 'inline-flex' : 'none';
+        btnMoveDown.style.display = lIdx < data.months[mIdx].lessons.length - 1 ? 'inline-flex' : 'none';
+      }
+    };
+
+    window.saveMgrLesson = function() {
+      const data = getCurriculumData(currentGrade);
+      const mIdx = parseInt(document.getElementById('mgrMonthSelect').value);
+      const lVal = document.getElementById('mgrLessonSelect').value;
+      const title = document.getElementById('mgrLessonTitle').value.trim();
+      const criteria = document.getElementById('mgrLessonCriteria').value.trim();
+
+      if (!title) { alert('נא להזין שם לשיעור'); return; }
+
+      const lessonObj = { text: title, criteria: criteria };
+
+      if (lVal === 'new') {
+        if(!data.months[mIdx].lessons) data.months[mIdx].lessons = [];
+        data.months[mIdx].lessons.push(lessonObj);
+      } else {
+        const lIdx = parseInt(lVal);
+        data.months[mIdx].lessons[lIdx] = lessonObj;
+      }
+
+      saveCurriculumData(currentGrade, data);
+      window.closeLessonManagerModal();
+      renderGradeData(currentGrade);
+    };
+
+    window.deleteMgrLesson = function() {
+      const lVal = document.getElementById('mgrLessonSelect').value;
+      if (lVal === 'new') return;
+
+      if (!confirm('האם אתה בטוח שברצונך למחוק שיעור זה?')) return;
+
+      const data = getCurriculumData(currentGrade);
+      const mIdx = parseInt(document.getElementById('mgrMonthSelect').value);
+      const lIdx = parseInt(lVal);
+
+      data.months[mIdx].lessons.splice(lIdx, 1);
+      saveCurriculumData(currentGrade, data);
+      window.closeLessonManagerModal();
+      renderGradeData(currentGrade);
+    };
+
+    window.moveMgrLesson = function(direction) {
+      const data = getCurriculumData(currentGrade);
+      const mIdx = parseInt(document.getElementById('mgrMonthSelect').value);
+      const lVal = document.getElementById('mgrLessonSelect').value;
+      if (lVal === 'new') return;
+
+      const lIdx = parseInt(lVal);
+      const lessons = data.months[mIdx].lessons;
+      const newIdx = lIdx + direction;
+
+      if (newIdx < 0 || newIdx >= lessons.length) return;
+
+      const temp = lessons[lIdx];
+      lessons[lIdx] = lessons[newIdx];
+      lessons[newIdx] = temp;
+
+      const classes = getClasses(currentGrade);
+      classes.forEach(cls => {
+        const id1 = `${currentGrade}_m${mIdx}_l${lIdx}_cls_${cls}`;
+        const id2 = `${currentGrade}_m${mIdx}_l${newIdx}_cls_${cls}`;
+        
+        const val1 = localStorage.getItem(id1);
+        const val2 = localStorage.getItem(id2);
+        
+        if (val1 !== null) localStorage.setItem(id2, val1);
+        else localStorage.removeItem(id2);
+        
+        if (val2 !== null) localStorage.setItem(id1, val2);
+        else localStorage.removeItem(id1);
+      });
+
+      saveCurriculumData(currentGrade, data);
+      renderGradeData(currentGrade);
+
+      const lessonSelect = document.getElementById('mgrLessonSelect');
+      lessonSelect.innerHTML = '<option value="new">[+ הוסף שיעור חדש לחודש זה]</option>';
+      data.months[mIdx].lessons.forEach((l, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = l.text || l;
+        lessonSelect.appendChild(opt);
+      });
+      lessonSelect.value = newIdx;
+      window.onMgrLessonChange();
+    };
+
+    window.openClassModal = function() {
+      const modal = document.getElementById('classModal');
+      const listContainer = document.getElementById('modalClassList');
+      listContainer.innerHTML = '';
+
+      const classes = getClasses(currentGrade);
+      classes.forEach((cls, idx) => {
+        const row = document.createElement('div');
+        row.className = 'class-row';
+        row.innerHTML = `
+          <span>${cls}</span>
+          <button class="btn-delete" onclick="window.deleteClass(${idx})">מחק</button>
+        `;
+        listContainer.appendChild(row);
+      });
+
+      modal.style.display = 'flex';
+    };
+
+    window.closeClassModal = function() {
+      document.getElementById('classModal').style.display = 'none';
+      renderGradeData(currentGrade);
+    };
+
+    window.addClass = function() {
+      const input = document.getElementById('newClassInput');
+      const className = input.value.trim();
+      if (!className) return;
+
+      const classes = getClasses(currentGrade);
+      classes.push(className);
+      saveClasses(currentGrade, classes);
+
+      input.value = '';
+      window.openClassModal();
+    };
+
+    window.deleteClass = function(index) {
+      const classes = getClasses(currentGrade);
+      classes.splice(index, 1);
+      saveClasses(currentGrade, classes);
+      window.openClassModal();
+    };
+
+    window.resetAll = function() {
+      if (confirm("האם אתה בטוח שברצונך לאפס את כל הסימונים והשינויים בתוכנית העבודה? הפעולה תמחק את כל הנתונים, ולאחר מכן הגיבוי יטען מחדש.")) {
+        localStorage.clear();
+        for (const key in EMBEDDED_BACKUP) {
+            localStorage.setItem(key, EMBEDDED_BACKUP[key]);
+        }
+        window.scheduleCloudSync();
+        renderGradeData(currentGrade);
+      }
+    };
+
+    window.exportData = function() {
+      const data = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        data[key] = localStorage.getItem(key);
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0,10);
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `curriculum_backup_${dateStr}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    };
+
+    window.importData = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (confirm("האם למזג/להחליף את הנתונים הנוכחיים בנתונים מהקובץ שטען?")) {
+            Object.keys(importedData).forEach(key => {
+              localStorage.setItem(key, importedData[key]);
+            });
+            window.scheduleCloudSync();
+            renderGradeData(currentGrade);
+            alert("הנתונים נטענו בהצלחה!");
+          }
+        } catch (err) {
+          alert("קובץ ה-JSON אינו תקין.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    };
+
+    async function initDataFlow() {
+        const initialized = await initFirebase();
+        let loadedFromCloud = false;
+
+        if (initialized && currentSyncId) {
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'syncs', currentSyncId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (Object.keys(data).length > 0) {
+                        localStorage.clear();
+                        localStorage.setItem('pe_sync_id', currentSyncId);
+                        for (const key in data) {
+                            localStorage.setItem(key, data[key]);
+                        }
+                        loadedFromCloud = true;
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load from cloud", e);
+            }
+        }
+
+        if (!loadedFromCloud && !localStorage.getItem('curriculum_v')) {
+            console.log("Loading embedded backup data...");
+            for (const key in EMBEDDED_BACKUP) {
+                localStorage.setItem(key, EMBEDDED_BACKUP[key]);
+            }
+            if (initialized) window.scheduleCloudSync(); 
+        }
+
+        updateCloudStatus(initialized ? 'online' : 'error');
+
+        document.querySelectorAll('.grade-section').forEach(sec => sec.style.display = 'none');
+        document.getElementById('grade-a_b').style.display = 'block';
+        renderGradeData('a_b');
+    }
+
+    window.onload = initDataFlow;
+
+  </script>
+</body>
+</html>
