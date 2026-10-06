@@ -224,6 +224,23 @@
     .sync-code-display { background: #f0f2f5; border: 2px dashed var(--primary-color); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 1.5rem; font-weight: bold; color: var(--primary-color); cursor: pointer; letter-spacing: 3px; text-align: center; transition: background 0.2s; }
     .sync-code-display:hover { background: #e4e6eb; }
 
+    /* עמוד ניהול קודים */
+    .admin-content { max-width: 720px; }
+    .admin-new-code { background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; }
+    .admin-codes-list { display: flex; flex-direction: column; gap: 10px; }
+    .admin-code-row { border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 6px; }
+    .admin-code-row.revoked { background: #fafafa; opacity: 0.8; }
+    .admin-code-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .admin-code { font-family: monospace; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px; color: var(--primary-color); cursor: pointer; }
+    .admin-code-row.revoked .admin-code { color: #888; text-decoration: line-through; }
+    .admin-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+    .admin-badge.active { background: var(--status-green-bg); color: #389e0d; border: 1px solid var(--status-green-border); }
+    .admin-badge.revoked { background: var(--status-red-bg); color: #cf1322; border: 1px solid var(--status-red-border); }
+    .admin-badge.device { background: #e6f4ff; color: var(--primary-color); border: 1px solid #91caff; }
+    .admin-code-meta { font-size: 0.8rem; color: #65676b; }
+    .admin-code-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .admin-code-actions .btn { padding: 5px 10px; font-size: 0.8rem; }
+
     @media print {
       .top-bar, .filter-bar, .action-btns, .cloud-status { display: none !important; }
       .grade-section { display: block !important; page-break-after: always; }
@@ -338,14 +355,15 @@
         <p style="font-size: 0.9rem; color: #65676b; margin-bottom: 20px;">מאפשר שמירת נתונים מאובטחת בענן, לגישה ולסנכרון מכל מכשיר (סמארטפון או מחשב אחר).</p>
         
         <div id="cloudUnconnectedView">
-            <button class="btn btn-lesson-manage" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="window.createNewSync()">
-                צור גיבוי ענן חדש 🚀
-            </button>
-            <div style="text-align: center; margin: 15px 0; font-size: 0.9rem; color: #65676b;">או התחבר לגיבוי קיים (ממכשיר אחר):</div>
+            <div style="text-align: center; font-size: 0.9rem; color: #65676b;">יש לך קוד? הזן אותו והנתונים ייטענו מיד:</div>
             <div class="form-group" style="display: flex; gap: 8px;">
-                <input type="text" id="existingSyncId" placeholder="הזן קוד סנכרון..." dir="ltr" style="text-align: center; font-family: monospace; font-size: 1.1rem; letter-spacing: 2px;">
-                <button class="btn btn-manage" onclick="window.connectExistingSync()">התחבר</button>
+                <input type="text" id="existingSyncId" placeholder="הזן קוד סנכרון..." dir="ltr" autocomplete="off" style="text-align: center; font-family: monospace; font-size: 1.1rem; letter-spacing: 2px;" onkeydown="if(event.key==='Enter') window.connectExistingSync()">
+                <button class="btn btn-print" onclick="window.connectExistingSync()">התחבר</button>
             </div>
+            <div style="text-align: center; margin: 5px 0; font-size: 0.85rem; color: #65676b;">הנפקת קוד חדש מותרת למנהל בלבד (דורש כניסה עם חשבון Google):</div>
+            <button class="btn btn-lesson-manage" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="window.createNewSync()">
+                שמירה בענן – הנפק קוד חדש 🔐
+            </button>
         </div>
         
         <div id="cloudConnectedView" style="display: none; text-align: center;">
@@ -361,14 +379,56 @@
         </div>
         
         <br>
+        <button class="btn btn-manage" style="width: 100%; margin-bottom: 8px;" onclick="window.openAdminPage()">🔐 ניהול קודים (מנהל)</button>
         <button class="btn btn-manage" style="width: 100%;" onclick="window.closeCloudModal()">סגור</button>
+    </div>
+  </div>
+
+  <!-- עמוד ניהול קודים (מנהל בלבד) -->
+  <div class="modal" id="adminModal">
+    <div class="modal-content admin-content">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <span>🔐 ניהול קודי שמירה בענן</span>
+            <span id="adminUserLabel" style="font-size: 0.8rem; font-weight: normal; color: #65676b;" dir="ltr"></span>
+        </div>
+
+        <div id="adminLoginView" style="text-align: center;">
+            <p style="font-size: 0.9rem; color: #444;">עמוד זה זמין רק לחשבון המנהל.<br>יש להתחבר עם חשבון Google של המנהל.</p>
+            <button class="btn btn-print" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="window.adminLogin()">התחבר עם Google</button>
+        </div>
+
+        <div id="adminPanelView" style="display: none;">
+            <div class="admin-new-code">
+                <div style="font-weight: bold; margin-bottom: 8px;">יצירת קוד חדש</div>
+                <div class="form-group">
+                    <input type="text" id="newCodeLabel" placeholder="שם / תיאור (לדוגמה: מחשב בית ספר)">
+                </div>
+                <label class="checkbox-label" style="margin-bottom: 10px;">
+                    <input type="checkbox" id="newCodeCopyLocal" checked>
+                    התחל מהנתונים שבמכשיר זה (אחרת – התכנית המובנית)
+                </label>
+                <button class="btn btn-export" style="width: 100%;" onclick="window.adminCreateCode()">➕ צור קוד חדש</button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px;">
+                <strong>קודים קיימים</strong>
+                <button class="btn btn-manage" style="padding: 4px 10px; font-size: 0.8rem;" onclick="window.adminRefresh()">🔄 רענן</button>
+            </div>
+            <div id="adminCodesList" class="admin-codes-list"></div>
+
+            <br>
+            <button class="btn btn-reset" style="width: 100%;" onclick="window.adminLogout()">התנתק מחשבון המנהל</button>
+        </div>
+
+        <br>
+        <button class="btn btn-manage" style="width: 100%;" onclick="window.closeAdminPage()">סגור</button>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =========================================================
     // 🔑 הגדרות Firebase שלך:
@@ -383,6 +443,10 @@
       appId: "1:722767574124:web:5ff0bcc30310d6dd1e9449"
     };
 
+    // 👑 החשבון היחיד שמורשה להנפיק / לבטל / למחוק קודים.
+    // חובה שיהיה זהה לכתובת שב-firestore.rules (שם נאכפת ההרשאה בפועל).
+    const ADMIN_EMAIL = "tamirmaidani@gmail.com";
+
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'standalone-pe-app';
     
     // בדיקה האם המשתמש הזין מפתח API אישי
@@ -396,6 +460,16 @@
     let syncTimeout = null;
     let isCloudReady = false;
     let currentSyncId = localStorage.getItem('pe_sync_id') || null;
+
+    // מפתחות שאינם חלק מנתוני התכנית ולא נשמרים בענן
+    const LOCAL_ONLY_KEYS = ['pe_sync_id', 'custom_firebase_config'];
+    // תווים ללא דו-משמעות (בלי O/0, I/1)
+    const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+    const syncDocRef = (code) => doc(db, 'artifacts', appId, 'public', 'data', 'syncs', code);
+    const codeDocRef = (code) => doc(db, 'artifacts', appId, 'public', 'data', 'codes', code);
+    const syncsCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'syncs');
+    const codesCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'codes');
 
     const cloudIndicator = document.getElementById('cloudIndicator');
     const cloudText = document.getElementById('cloudText');
@@ -413,6 +487,68 @@
         }
     }
 
+    function normalizeCode(raw) {
+        return (raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+
+    function generateCode(length = 8) {
+        const bytes = new Uint32Array(length);
+        crypto.getRandomValues(bytes);
+        let out = '';
+        for (let i = 0; i < length; i++) out += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length];
+        return out;
+    }
+
+    function isPermissionError(e) {
+        return e && (e.code === 'permission-denied' || e.code === 'firestore/permission-denied');
+    }
+
+    function isAdminUser() {
+        const u = auth && auth.currentUser;
+        return !!(u && !u.isAnonymous && u.emailVerified && (u.email || '').toLowerCase() === ADMIN_EMAIL);
+    }
+
+    function collectLocalData() {
+        const data = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!LOCAL_ONLY_KEYS.includes(key)) data[key] = localStorage.getItem(key);
+        }
+        return data;
+    }
+
+    // טוען נתונים מהענן אל המכשיר ומציג אותם מיד
+    function applyCloudData(code, data) {
+        const firebaseCfg = localStorage.getItem('custom_firebase_config');
+        localStorage.clear();
+        if (firebaseCfg) localStorage.setItem('custom_firebase_config', firebaseCfg);
+        localStorage.setItem('pe_sync_id', code);
+        currentSyncId = code;
+
+        const keys = Object.keys(data || {}).filter(k => !k.startsWith('__'));
+        if (keys.length === 0) {
+            for (const key in EMBEDDED_BACKUP) localStorage.setItem(key, EMBEDDED_BACKUP[key]);
+        } else {
+            for (const key of keys) localStorage.setItem(key, data[key]);
+        }
+    }
+
+    function refreshView() {
+        document.querySelectorAll('.grade-section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(`grade-${currentGrade}`).style.display = 'block';
+        renderGradeData(currentGrade);
+        if (window.filterLessons) window.filterLessons();
+    }
+
+    // הקוד בוטל / נמחק ע"י המנהל – מנתקים את המכשיר, הנתונים המקומיים נשמרים
+    function handleRevokedCode() {
+        const old = currentSyncId;
+        currentSyncId = null;
+        localStorage.removeItem('pe_sync_id');
+        updateCloudStatus('online');
+        alert(`קוד הסנכרון ${old} אינו פעיל יותר (בוטל או נמחק).\nהנתונים נשמרו במכשיר זה. ניתן להזין קוד אחר בחלון הסנכרון.`);
+    }
+
     async function initFirebase() {
         if (!firebaseConfig) {
             updateCloudStatus('online'); // שמירה מקומית ב-LocalStorage עובדת מעולה
@@ -422,10 +558,12 @@
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            await auth.authStateReady();
 
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
+            } else if (!auth.currentUser) {
+                // משתמש רגיל – כניסה אנונימית. מנהל שכבר התחבר עם Google נשאר מחובר.
                 await signInAnonymously(auth);
             }
             userId = auth.currentUser.uid;
@@ -446,20 +584,18 @@
         if (syncTimeout) clearTimeout(syncTimeout);
         
         syncTimeout = setTimeout(async () => {
-             const dataToSave = {};
-             for (let i = 0; i < localStorage.length; i++) {
-                 const key = localStorage.key(i);
-                 if (key !== 'pe_sync_id') {
-                     dataToSave[key] = localStorage.getItem(key);
-                 }
-             }
+             const code = currentSyncId;
+             if (!code) return;
              try {
-                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'syncs', currentSyncId);
-                 await setDoc(docRef, dataToSave);
+                 await setDoc(syncDocRef(code), collectLocalData());
                  updateCloudStatus('online');
              } catch (e) {
                  console.error("Cloud sync failed", e);
-                 updateCloudStatus('error');
+                 if (isPermissionError(e) && code === currentSyncId) {
+                     handleRevokedCode();
+                 } else {
+                     updateCloudStatus('error');
+                 }
              }
         }, 1500); 
     };
@@ -489,67 +625,116 @@
         document.getElementById('cloudModal').style.display = 'none';
     };
 
-    window.createNewSync = async function() {
-        const newId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        currentSyncId = newId;
-        localStorage.setItem('pe_sync_id', currentSyncId);
-        
-        if (isCloudReady) {
-            window.scheduleCloudSync();
-        } else {
-            alert('קוד הגיבוי נוצר! הקוד יישמר מקומית. כדי לחבר מסד נתונים עצמאי ב-GitHub, עקוב אחר המדריך.');
+    // ===================== הרשאות מנהל =====================
+
+    // מבקש כניסה עם חשבון Google של המנהל. מחזיר true רק אם אומת החשבון הנכון.
+    async function ensureAdmin() {
+        if (!isCloudReady) {
+            alert('אין חיבור לשרת הענן. בדוק את החיבור לאינטרנט ונסה שוב.');
+            return false;
         }
-        
-        updateCloudStatus('online');
-        window.openCloudModal(); 
+        if (isAdminUser()) return true;
+
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (e) {
+            console.error("Admin sign-in failed", e);
+            if (e.code === 'auth/popup-blocked') {
+                alert('הדפדפן חסם את חלון ההתחברות. אפשר חלונות קופצים לאתר זה ונסה שוב.');
+            } else if (e.code === 'auth/unauthorized-domain') {
+                alert('הדומיין של האתר אינו מורשה ב-Firebase.\nיש להוסיף אותו ב-Firebase Console › Authentication › Settings › Authorized domains.');
+            } else if (e.code === 'auth/operation-not-allowed') {
+                alert('כניסה עם Google אינה מופעלת ב-Firebase.\nיש להפעיל אותה ב-Firebase Console › Authentication › Sign-in method › Google.');
+            } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+                alert('ההתחברות נכשלה: ' + (e.message || e.code));
+            }
+            if (!auth.currentUser) await signInAnonymously(auth).catch(() => {});
+            return false;
+        }
+
+        if (!isAdminUser()) {
+            const email = auth.currentUser && auth.currentUser.email;
+            await signOut(auth);
+            await signInAnonymously(auth).catch(() => {});
+            alert(`החשבון ${email || ''} אינו מורשה להנפיק קודים.\nרק החשבון ${ADMIN_EMAIL} יכול לבצע פעולה זו.`);
+            return false;
+        }
+        userId = auth.currentUser.uid;
+        return true;
+    }
+
+    // יוצר קוד חדש בענן (רישום + נתונים). מנהל בלבד.
+    async function issueNewCode(label, initialData) {
+        let code;
+        for (let attempt = 0; attempt < 5; attempt++) {
+            code = generateCode();
+            const existing = await getDoc(codeDocRef(code));
+            if (!existing.exists()) break;
+        }
+        await setDoc(codeDocRef(code), {
+            status: 'active',
+            label: label || '',
+            createdAt: serverTimestamp(),
+            createdBy: auth.currentUser.email
+        });
+        await setDoc(syncDocRef(code), initialData);
+        return code;
+    }
+
+    // כפתור "שמירה בענן" – דורש אימות מנהל, ואז מנפיק קוד ומחבר אליו את המכשיר
+    window.createNewSync = async function() {
+        if (!(await ensureAdmin())) return;
+        try {
+            updateCloudStatus('syncing');
+            const code = await issueNewCode('נוצר מכפתור שמירה בענן', collectLocalData());
+            currentSyncId = code;
+            localStorage.setItem('pe_sync_id', code);
+            updateCloudStatus('online');
+            window.openCloudModal();
+        } catch (e) {
+            console.error("Create code failed", e);
+            updateCloudStatus('error');
+            alert('יצירת הקוד נכשלה: ' + (isPermissionError(e) ? 'אין הרשאה (בדוק שחוקי האבטחה ב-Firestore פורסמו).' : (e.message || e.code)));
+        }
     };
 
+    // הזנת קוד קיים – טעינה מיידית של הנתונים מהענן
     window.connectExistingSync = async function() {
-        const code = document.getElementById('existingSyncId').value.trim().toUpperCase();
+        const code = normalizeCode(document.getElementById('existingSyncId').value);
         if (!code) {
             alert('נא להזין קוד סנכרון.');
             return;
         }
 
         if (!isCloudReady) {
-            alert('לא הוגדר שרת ענן. שים לב כי הנתונים נשמרים כעת בדפדפן המקומי.');
+            alert('אין חיבור לשרת הענן. בדוק את החיבור לאינטרנט ונסה שוב.');
             return;
         }
 
         try {
             updateCloudStatus('syncing');
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'syncs', code);
-            const docSnap = await getDoc(docRef);
+            const docSnap = await getDoc(syncDocRef(code));
             
             if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (confirm('התחברות הצליחה! האם לטעון את הנתונים מהענן?')) {
-                    localStorage.clear();
-                    localStorage.setItem('pe_sync_id', code);
-                    currentSyncId = code;
-                    
-                    for (const key in data) {
-                        localStorage.setItem(key, data[key]);
-                    }
-                    
-                    updateCloudStatus('online');
-                    window.closeCloudModal();
-                    
-                    document.querySelectorAll('.grade-section').forEach(sec => sec.style.display = 'none');
-                    document.getElementById(`grade-${currentGrade}`).style.display = 'block';
-                    renderGradeData(currentGrade);
-                    alert('הנתונים סונכרנו בהצלחה!');
-                } else {
-                    updateCloudStatus('online');
-                }
+                applyCloudData(code, docSnap.data());
+                updateCloudStatus('online');
+                window.closeCloudModal();
+                refreshView();
+                alert('הנתונים נטענו בהצלחה! ✅');
             } else {
-                updateCloudStatus('error');
+                updateCloudStatus('online');
                 alert('קוד הסנכרון לא נמצא.');
             }
         } catch (e) {
             console.error(e);
-            updateCloudStatus('error');
-            alert('שגיאה בהתחברות לענן.');
+            updateCloudStatus('online');
+            if (isPermissionError(e)) {
+                alert('הקוד אינו קיים או שבוטל ע"י המנהל.');
+            } else {
+                alert('שגיאה בהתחברות לענן. בדוק את החיבור לאינטרנט ונסה שוב.');
+            }
         }
     };
 
@@ -562,18 +747,184 @@
         }
     };
 
-    window.copySyncId = function() {
-        if (!currentSyncId) return;
+    function copyText(text) {
         try {
             const el = document.createElement('textarea');
-            el.value = currentSyncId;
+            el.value = text;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            alert('הקוד הועתק: ' + currentSyncId);
+            alert('הקוד הועתק: ' + text);
         } catch(e) {
             console.error("Copy failed", e);
+        }
+    }
+
+    window.copySyncId = function() {
+        if (!currentSyncId) return;
+        copyText(currentSyncId);
+    };
+
+    // ===================== עמוד ניהול קודים =====================
+
+    function renderAdminView() {
+        const isAdmin = isAdminUser();
+        document.getElementById('adminLoginView').style.display = isAdmin ? 'none' : 'block';
+        document.getElementById('adminPanelView').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('adminUserLabel').innerText = isAdmin ? auth.currentUser.email : '';
+    }
+
+    window.openAdminPage = async function() {
+        window.closeCloudModal();
+        document.getElementById('adminModal').style.display = 'flex';
+        renderAdminView();
+        if (isAdminUser()) await window.adminRefresh();
+    };
+
+    window.closeAdminPage = function() {
+        document.getElementById('adminModal').style.display = 'none';
+        if (location.hash === '#admin') history.replaceState(null, '', location.pathname + location.search);
+    };
+
+    window.adminLogin = async function() {
+        if (await ensureAdmin()) {
+            renderAdminView();
+            await window.adminRefresh();
+        }
+    };
+
+    window.adminLogout = async function() {
+        if (!confirm('להתנתק מחשבון המנהל? (המכשיר ימשיך להסתנכרן כרגיל)')) return;
+        await signOut(auth);
+        await signInAnonymously(auth).catch(e => console.error(e));
+        userId = auth.currentUser ? auth.currentUser.uid : null;
+        renderAdminView();
+    };
+
+    function formatDate(ts) {
+        if (!ts || !ts.toDate) return '—';
+        return ts.toDate().toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    window.adminRefresh = async function() {
+        const list = document.getElementById('adminCodesList');
+        if (!isAdminUser()) { renderAdminView(); return; }
+        list.innerHTML = '<div style="text-align:center; color:#65676b;">טוען...</div>';
+        try {
+            const [codesSnap, syncsSnap] = await Promise.all([getDocs(codesCol()), getDocs(syncsCol())]);
+            const codes = {};
+            codesSnap.forEach(d => { codes[d.id] = d.data(); });
+
+            // קודים ישנים (שנוצרו לפני מערכת הניהול) – נרשמים אוטומטית כפעילים כדי שימשיכו לעבוד
+            const legacy = syncsSnap.docs.map(d => d.id).filter(id => !codes[id]);
+            for (const id of legacy) {
+                const entry = { status: 'active', label: 'קוד קיים (לפני מערכת הניהול)', createdAt: serverTimestamp(), createdBy: auth.currentUser.email };
+                await setDoc(codeDocRef(id), entry);
+                codes[id] = { ...entry, createdAt: null };
+            }
+
+            const ids = Object.keys(codes).sort((a, b) => {
+                const ta = codes[a].createdAt && codes[a].createdAt.toMillis ? codes[a].createdAt.toMillis() : 0;
+                const tb = codes[b].createdAt && codes[b].createdAt.toMillis ? codes[b].createdAt.toMillis() : 0;
+                return tb - ta;
+            });
+
+            if (ids.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#65676b;">אין עדיין קודים.</div>';
+                return;
+            }
+
+            list.innerHTML = ids.map(id => {
+                const c = codes[id];
+                const active = c.status === 'active';
+                const isThisDevice = id === currentSyncId;
+                return `
+                <div class="admin-code-row ${active ? '' : 'revoked'}">
+                    <div class="admin-code-main">
+                        <span class="admin-code" dir="ltr" onclick="window.adminCopy('${id}')" title="לחץ להעתקה">${id}</span>
+                        <span class="admin-badge ${active ? 'active' : 'revoked'}">${active ? 'פעיל' : 'מבוטל'}</span>
+                        ${isThisDevice ? '<span class="admin-badge device">המכשיר הזה</span>' : ''}
+                    </div>
+                    <div class="admin-code-meta">${escapeHtml(c.label || '')}${c.label ? ' · ' : ''}נוצר: ${formatDate(c.createdAt)}</div>
+                    <div class="admin-code-actions">
+                        ${active
+                            ? `<button class="btn btn-move" onclick="window.adminSetStatus('${id}', 'revoked')">⛔ בטל</button>`
+                            : `<button class="btn btn-export" onclick="window.adminSetStatus('${id}', 'active')">✅ הפעל מחדש</button>`}
+                        ${active && !isThisDevice ? `<button class="btn btn-import" onclick="window.adminConnectDevice('${id}')">📲 חבר מכשיר זה</button>` : ''}
+                        <button class="btn btn-reset" onclick="window.adminDeleteCode('${id}')">🗑️ מחק</button>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (e) {
+            console.error("Admin refresh failed", e);
+            list.innerHTML = `<div style="color:#ff4d4f;">טעינת הקודים נכשלה: ${isPermissionError(e) ? 'אין הרשאה – ודא שחוקי האבטחה (firestore.rules) פורסמו ב-Firebase.' : escapeHtml(e.message || e.code)}</div>`;
+        }
+    };
+
+    window.adminCopy = function(code) { copyText(code); };
+
+    window.adminCreateCode = async function() {
+        if (!(await ensureAdmin())) { renderAdminView(); return; }
+        const label = document.getElementById('newCodeLabel').value.trim();
+        const copyLocal = document.getElementById('newCodeCopyLocal').checked;
+        try {
+            const code = await issueNewCode(label, copyLocal ? collectLocalData() : { ...EMBEDDED_BACKUP });
+            document.getElementById('newCodeLabel').value = '';
+            await window.adminRefresh();
+            copyText(code);
+        } catch (e) {
+            console.error("Create code failed", e);
+            alert('יצירת הקוד נכשלה: ' + (e.message || e.code));
+        }
+    };
+
+    window.adminSetStatus = async function(code, status) {
+        const msg = status === 'revoked'
+            ? `לבטל את הקוד ${code}?\nמכשירים המחוברים לקוד זה יפסיקו להסתנכרן (הנתונים בענן נשמרים וניתן להפעיל מחדש).`
+            : `להפעיל מחדש את הקוד ${code}?`;
+        if (!confirm(msg)) return;
+        try {
+            await updateDoc(codeDocRef(code), { status, updatedAt: serverTimestamp() });
+            await window.adminRefresh();
+        } catch (e) {
+            console.error(e);
+            alert('הפעולה נכשלה: ' + (e.message || e.code));
+        }
+    };
+
+    window.adminDeleteCode = async function(code) {
+        if (!confirm(`למחוק לצמיתות את הקוד ${code} ואת כל הנתונים השמורים בו בענן?\nלא ניתן לשחזר פעולה זו.`)) return;
+        try {
+            await deleteDoc(syncDocRef(code));
+            await deleteDoc(codeDocRef(code));
+            if (code === currentSyncId) {
+                currentSyncId = null;
+                localStorage.removeItem('pe_sync_id');
+                updateCloudStatus('online');
+            }
+            await window.adminRefresh();
+        } catch (e) {
+            console.error(e);
+            alert('המחיקה נכשלה: ' + (e.message || e.code));
+        }
+    };
+
+    window.adminConnectDevice = async function(code) {
+        if (!confirm(`לחבר מכשיר זה לקוד ${code}? הנתונים במכשיר יוחלפו בנתונים מהענן.`)) return;
+        try {
+            const snap = await getDoc(syncDocRef(code));
+            applyCloudData(code, snap.exists() ? snap.data() : {});
+            updateCloudStatus('online');
+            refreshView();
+            await window.adminRefresh();
+        } catch (e) {
+            console.error(e);
+            alert('החיבור נכשל: ' + (e.message || e.code));
         }
     };
 
@@ -1063,24 +1414,21 @@
     async function initDataFlow() {
         const initialized = await initFirebase();
         let loadedFromCloud = false;
+        let codeRevoked = false;
 
         if (initialized && currentSyncId) {
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'syncs', currentSyncId);
-                const docSnap = await getDoc(docRef);
+                const docSnap = await getDoc(syncDocRef(currentSyncId));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    if (Object.keys(data).length > 0) {
-                        localStorage.clear();
-                        localStorage.setItem('pe_sync_id', currentSyncId);
-                        for (const key in data) {
-                            localStorage.setItem(key, data[key]);
-                        }
+                    if (Object.keys(data).some(k => !k.startsWith('__'))) {
+                        applyCloudData(currentSyncId, data);
                         loadedFromCloud = true;
                     }
                 }
             } catch (e) {
                 console.error("Failed to load from cloud", e);
+                if (isPermissionError(e)) codeRevoked = true;
             }
         }
 
@@ -1089,7 +1437,7 @@
             for (const key in EMBEDDED_BACKUP) {
                 localStorage.setItem(key, EMBEDDED_BACKUP[key]);
             }
-            if (initialized) window.scheduleCloudSync(); 
+            if (initialized && !codeRevoked) window.scheduleCloudSync(); 
         }
 
         updateCloudStatus(initialized ? 'online' : 'error');
@@ -1097,6 +1445,9 @@
         document.querySelectorAll('.grade-section').forEach(sec => sec.style.display = 'none');
         document.getElementById('grade-a_b').style.display = 'block';
         renderGradeData('a_b');
+
+        if (codeRevoked) handleRevokedCode();
+        if (location.hash === '#admin') window.openAdminPage();
     }
 
     window.onload = initDataFlow;
