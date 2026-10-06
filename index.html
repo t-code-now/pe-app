@@ -237,6 +237,8 @@
     .admin-badge.active { background: var(--status-green-bg); color: #389e0d; border: 1px solid var(--status-green-border); }
     .admin-badge.revoked { background: var(--status-red-bg); color: #cf1322; border: 1px solid var(--status-red-border); }
     .admin-badge.device { background: #e6f4ff; color: var(--primary-color); border: 1px solid #91caff; }
+    .admin-code-owner { font-size: 1rem; font-weight: bold; color: var(--text-color); }
+    .admin-code-owner.empty { font-weight: normal; font-style: italic; color: #999; }
     .admin-code-meta { font-size: 0.8rem; color: #65676b; }
     .admin-code-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .admin-code-actions .btn { padding: 5px 10px; font-size: 0.8rem; }
@@ -401,7 +403,12 @@
             <div class="admin-new-code">
                 <div style="font-weight: bold; margin-bottom: 8px;">יצירת קוד חדש</div>
                 <div class="form-group">
-                    <input type="text" id="newCodeLabel" placeholder="שם / תיאור (לדוגמה: מחשב בית ספר)">
+                    <label for="newCodeOwner">שם מלא / כינוי של מקבל הקוד *</label>
+                    <input type="text" id="newCodeOwner" placeholder="לדוגמה: יוסי כהן">
+                </div>
+                <div class="form-group">
+                    <label for="newCodeLabel">הערה (רשות)</label>
+                    <input type="text" id="newCodeLabel" placeholder="לדוגמה: בית ספר הדר, מחשב בבית">
                 </div>
                 <label class="checkbox-label" style="margin-bottom: 10px;">
                     <input type="checkbox" id="newCodeCopyLocal" checked>
@@ -666,7 +673,7 @@
     }
 
     // יוצר קוד חדש בענן (רישום + נתונים). מנהל בלבד.
-    async function issueNewCode(label, initialData) {
+    async function issueNewCode(label, initialData, owner = '') {
         let code;
         for (let attempt = 0; attempt < 5; attempt++) {
             code = generateCode();
@@ -676,6 +683,7 @@
         await setDoc(codeDocRef(code), {
             status: 'active',
             label: label || '',
+            owner: owner || '',
             createdAt: serverTimestamp(),
             createdBy: auth.currentUser.email
         });
@@ -850,12 +858,14 @@
                         <span class="admin-badge ${active ? 'active' : 'revoked'}">${active ? 'פעיל' : 'מבוטל'}</span>
                         ${isThisDevice ? '<span class="admin-badge device">המכשיר הזה</span>' : ''}
                     </div>
+                    <div class="admin-code-owner ${c.owner ? '' : 'empty'}">👤 ${c.owner ? escapeHtml(c.owner) : 'לא הוזן שם'}</div>
                     <div class="admin-code-meta">${escapeHtml(c.label || '')}${c.label ? ' · ' : ''}נוצר: ${formatDate(c.createdAt)}</div>
                     <div class="admin-code-actions">
                         ${active
                             ? `<button class="btn btn-move" onclick="window.adminSetStatus('${id}', 'revoked')">⛔ בטל</button>`
                             : `<button class="btn btn-export" onclick="window.adminSetStatus('${id}', 'active')">✅ הפעל מחדש</button>`}
                         ${active && !isThisDevice ? `<button class="btn btn-import" onclick="window.adminConnectDevice('${id}')">📲 חבר מכשיר זה</button>` : ''}
+                        <button class="btn btn-manage" onclick="window.adminEditCode('${id}')">✏️ ערוך שם</button>
                         <button class="btn btn-reset" onclick="window.adminDeleteCode('${id}')">🗑️ מחק</button>
                     </div>
                 </div>`;
@@ -870,16 +880,40 @@
 
     window.adminCreateCode = async function() {
         if (!(await ensureAdmin())) { renderAdminView(); return; }
+        const owner = document.getElementById('newCodeOwner').value.trim();
         const label = document.getElementById('newCodeLabel').value.trim();
+        if (!owner) {
+            alert('נא להזין שם מלא או כינוי של מקבל הקוד.');
+            document.getElementById('newCodeOwner').focus();
+            return;
+        }
         const copyLocal = document.getElementById('newCodeCopyLocal').checked;
         try {
-            const code = await issueNewCode(label, copyLocal ? collectLocalData() : { ...EMBEDDED_BACKUP });
+            const code = await issueNewCode(label, copyLocal ? collectLocalData() : { ...EMBEDDED_BACKUP }, owner);
+            document.getElementById('newCodeOwner').value = '';
             document.getElementById('newCodeLabel').value = '';
             await window.adminRefresh();
             copyText(code);
         } catch (e) {
             console.error("Create code failed", e);
             alert('יצירת הקוד נכשלה: ' + (e.message || e.code));
+        }
+    };
+
+    // עריכת שם המקבל וההערה של קוד קיים
+    window.adminEditCode = async function(code) {
+        try {
+            const snap = await getDoc(codeDocRef(code));
+            const c = snap.exists() ? snap.data() : {};
+            const owner = prompt(`שם מלא / כינוי של מקבל הקוד ${code}:`, c.owner || '');
+            if (owner === null) return;
+            const label = prompt(`הערה לקוד ${code} (רשות):`, c.label || '');
+            if (label === null) return;
+            await updateDoc(codeDocRef(code), { owner: owner.trim(), label: label.trim(), updatedAt: serverTimestamp() });
+            await window.adminRefresh();
+        } catch (e) {
+            console.error(e);
+            alert('העדכון נכשל: ' + (e.message || e.code));
         }
     };
 
