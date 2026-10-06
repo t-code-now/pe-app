@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>גיבוי התכנית השנתית</title>
+  <style>
+    :root { --bg:#f5f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --accent:#2563eb; --ok:#15803d; --err:#b91c1c; --border:#e5e7eb; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#111827; --card:#1f2937; --text:#f3f4f6; --muted:#9ca3af; --accent:#60a5fa; --ok:#4ade80; --err:#f87171; --border:#374151; }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:16px; background:var(--bg); color:var(--text); font-family: system-ui, "Segoe UI", Arial, sans-serif; line-height:1.6; }
+    main { max-width:720px; margin:0 auto; }
+    h1 { font-size:1.5rem; margin:8px 0 16px; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+    h2 { font-size:1.1rem; margin:0 0 8px; }
+    p { margin:4px 0 12px; color:var(--muted); }
+    button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px; font-size:1rem; cursor:pointer; margin:4px 0 4px 8px; }
+    button:disabled { opacity:.5; cursor:default; }
+    textarea, input { width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font:inherit; }
+    textarea { min-height:70px; direction:ltr; text-align:left; }
+    #log { white-space:pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size:.9rem; background:var(--bg); border-radius:8px; padding:8px; min-height:60px; direction:rtl; }
+    .ok { color:var(--ok); } .err { color:var(--err); }
+    details summary { cursor:pointer; color:var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>גיבוי התכנית השנתית</h1>
+
+  <section>
+    <h2>1. גיבוי כל השמירות מהענן</h2>
+    <p>מוריד קובץ אחד עם כל קודי הסנכרון שנמצאים ב-Firebase, וקובץ נפרד לכל קוד. אפשר לטעון את הקבצים הנפרדים חזרה לאפליקציה דרך כפתור הייבוא שלה.</p>
+    <button id="btnAll">גבה את כל הענן</button>
+  </section>
+
+  <section>
+    <h2>2. גיבוי לפי קודי סנכרון</h2>
+    <p>אם הגיבוי המלא נחסם בגלל הרשאות, הזן כאן את קודי הסנכרון שלך. אפשר כמה קודים, מופרדים בפסיק או בשורה חדשה.</p>
+    <textarea id="codes" placeholder="ABC123, XYZ789"></textarea>
+    <button id="btnCodes">גבה את הקודים האלה</button>
+  </section>
+
+  <section>
+    <h2>3. גיבוי הנתונים השמורים בדפדפן הזה</h2>
+    <p>עובד רק כשהדף הזה פתוח באותה כתובת אתר כמו התכנית. כך נשמרים גם שינויים שעוד לא הגיעו לענן.</p>
+    <button id="btnLocal">גבה את הדפדפן הזה</button>
+  </section>
+
+  <section>
+    <details>
+      <summary>הגדרות מתקדמות</summary>
+      <p>מזהה האפליקציה (appId) בנתיב השמירה. לא לשנות אלא אם יש סיבה.</p>
+      <input id="appId" value="standalone-pe-app">
+    </details>
+  </section>
+
+  <section>
+    <h2>יומן</h2>
+    <div id="log"></div>
+  </section>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  // אותן הגדרות כמו ב-index.html של pe-app
+  const firebaseConfig = {
+    apiKey: "AIzaSyD0PtDlw-A547sGs6LdgcV7-bCxsVQaEXk",
+    authDomain: "pe-app-db.firebaseapp.com",
+    projectId: "pe-app-db",
+    storageBucket: "pe-app-db.firebasestorage.app",
+    messagingSenderId: "722767574124",
+    appId: "1:722767574124:web:5ff0bcc30310d6dd1e9449"
+  };
+
+  const logEl = document.getElementById('log');
+  function log(msg, cls) {
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    logEl.appendChild(line);
+  }
+
+  let db = null;
+  async function connect() {
+    if (db) return db;
+    log('מתחבר ל-Firebase...');
+    const app = initializeApp(firebaseConfig);
+    await signInAnonymously(getAuth(app));
+    db = getFirestore(app);
+    log('מחובר.', 'ok');
+    return db;
+  }
+
+  const syncsPath = () => ['artifacts', document.getElementById('appId').value.trim(), 'public', 'data', 'syncs'];
+  const stamp = () => new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+  function download(filename, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  // קובץ מלא עם כל הקודים, ואחריו קובץ לכל קוד בפורמט שהאפליקציה יודעת לייבא
+  async function saveResults(syncs, label) {
+    const codes = Object.keys(syncs);
+    if (codes.length === 0) {
+      log('לא נמצאו נתונים לגיבוי.', 'err');
+      return;
+    }
+    const ts = stamp();
+    download(`pe-backup-${label}-${ts}.json`, {
+      exportedAt: new Date().toISOString(),
+      projectId: firebaseConfig.projectId,
+      path: syncsPath().join('/'),
+      syncs
+    });
+    for (const code of codes) {
+      await new Promise(r => setTimeout(r, 400)); // דפדפנים חוסמים הרבה הורדות בבת אחת
+      download(`pe-sync-${code}-${ts}.json`, syncs[code]);
+    }
+    log(`נשמרו ${codes.length} קודים: ${codes.join(', ')}`, 'ok');
+  }
+
+  function run(button, fn) {
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try { await fn(); }
+      catch (e) {
+        console.error(e);
+        if (e.code === 'permission-denied') {
+          log('אין הרשאה לקרוא את כל הרשימה. השתמש באפשרות 2 עם קודי הסנכרון שלך.', 'err');
+        } else {
+          log('שגיאה: ' + (e.code || e.message), 'err');
+        }
+      }
+      finally { button.disabled = false; }
+    });
+  }
+
+  run(document.getElementById('btnAll'), async () => {
+    await connect();
+    log('קורא את כל השמירות...');
+    const snap = await getDocs(collection(db, ...syncsPath()));
+    const syncs = {};
+    snap.forEach(d => { syncs[d.id] = d.data(); });
+    await saveResults(syncs, 'all');
+  });
+
+  run(document.getElementById('btnCodes'), async () => {
+    const codes = [...new Set(document.getElementById('codes').value
+      .split(/[\s,;]+/).map(c => c.trim().toUpperCase()).filter(Boolean))];
+    if (codes.length === 0) { log('לא הוזנו קודים.', 'err'); return; }
+    await connect();
+    const syncs = {};
+    for (const code of codes) {
+      const snap = await getDoc(doc(db, ...syncsPath(), code));
+      if (snap.exists()) { syncs[code] = snap.data(); log(`נמצא: ${code}`); }
+      else log(`לא נמצא בענן: ${code}`, 'err');
+    }
+    await saveResults(syncs, 'codes');
+  });
+
+  run(document.getElementById('btnLocal'), async () => {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      data[key] = localStorage.getItem(key);
+    }
+    const count = Object.keys(data).length;
+    if (count === 0) {
+      log('אין נתונים בדפדפן הזה בכתובת הזאת. פתח את הדף מאותה כתובת של התכנית.', 'err');
+      return;
+    }
+    download(`pe-local-${stamp()}.json`, data);
+    log(`נשמרו ${count} ערכים מהדפדפן.` + (data.pe_sync_id ? ` קוד הסנכרון במכשיר הזה: ${data.pe_sync_id}` : ''), 'ok');
+  });
+</script>
+</body>
+</html>
